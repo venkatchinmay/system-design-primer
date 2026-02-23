@@ -820,7 +820,7 @@ Same multi-provider approach as Continue, using LangChain adapters:
 |---|---|---|
 | **Chat** | GPT-4o, Claude 3.5 Sonnet, Gemini 2.0 Flash | OpenAI, Anthropic, Google |
 | **Code Editing** | Claude 3.5 Sonnet, GPT-4o | Anthropic, OpenAI |
-| **Embeddings** | `text-embedding-3-small`, `nomic-embed-text` | OpenAI, Ollama |
+| **Embeddings** | `text-embedding-3-small`, `nomic--embedtext` | OpenAI, Ollama |
 | **Autocomplete** | Codestral, DeepSeek Coder | Mistral, DeepSeek |
 | **Local (Ollama)** | Qwen 2.5 Coder, DeepSeek Coder V2, Llama 3.1 | Ollama |
 

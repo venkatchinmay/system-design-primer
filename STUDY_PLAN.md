@@ -14,7 +14,7 @@ Before designing systems, understand how data moves.
 | 1 | How the Internet works — packets, IP, routing | [cs.fyi/internet](https://cs.fyi/guide/how-does-internet-work) | Run `traceroute google.com` and `dig google.com` — trace the full path |
 | 2 | HTTP deep dive — request/response, headers, status codes | [MDN: HTTP Overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview) | Use `curl -v https://httpbin.org/get` — study every header |
 | 3 | DNS — how names become IPs | [howdns.works](https://howdns.works/) (visual comic) | `dig +trace example.com` — watch the recursive lookup |
-| 4 | TCP/IP & UDP — reliable vs fast delivery | [Ben Eater: Networking Tutorial](https://www.youtube.com/watch?v=XaGXPObx2Gs) | `sudo tcpdump -i any port 80` — capture real packets |
+| 4 | TCP/IP & UDP — reliable vs fast delivery | [Hussein Nasser: TCP vs UDP (YouTube)](https://www.youtube.com/watch?v=qqRYkcta6IE) | `sudo tcpdump -i any port 80` — capture real packets |
 | 5 | TLS/HTTPS — how encryption works on the web | [tls.ulfheim.net](https://tls.ulfheim.net/) (byte-by-byte TLS explained) | `openssl s_client -connect google.com:443` — inspect a real TLS handshake |
 
 ---
