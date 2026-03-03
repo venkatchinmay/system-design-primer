@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Array & String | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>📊 Array & String Patterns</h1>
+<p class="subtitle">Patterns 1–5 · The foundation of everything</p>
+
+<!-- ═══════════════════════ PATTERN 1: TWO POINTERS ═══════════════════════ -->
+<div class="pattern" id="two-pointers">
+<div class="pattern-header"><div class="pattern-num">1</div><div class="pattern-title">Two Pointers</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Two people walking toward each other from opposite ends of a bridge. One starts at the left, one at the right. They move based on conditions — the tall person moves, or the short one moves. They meet in the middle. This avoids checking every pair!</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">sorted array</span><span class="keyword">pair with target sum</span><span class="keyword">remove duplicates</span><span class="keyword">container with most water</span><span class="keyword">palindrome check</span><span class="keyword">merge sorted</span><span class="keyword">three sum</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Two Sum II — sorted array [2, 7, 11, 15], target = 9</p>
+<div class="step-box"><div class="step-title">Step 1 — Place pointers at both ends</div><pre>
+  [2, 7, 11, 15]     left = 0, right = 3
+   ↑           ↑      sum = 2 + 15 = 17 &gt; 9 → <span class="highlight">right--</span>
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Too big → move right pointer left</div><pre>
+  [2, 7, 11, 15]     left = 0, right = 2
+   ↑       ↑          sum = 2 + 11 = 13 &gt; 9 → <span class="highlight">right--</span>
+</pre></div>
+<div class="step-box"><div class="step-title">Step 3 — Found it!</div><pre>
+  [2, 7, 11, 15]     left = 0, right = 1
+   ↑   ↑              sum = 2 + 7 = 9  <span class="result">✅ Found!</span>
+</pre></div>
+<div class="step-box"><div class="step-title">💡 Why it works</div><pre>
+  sum too big → right pointer has the bigger number → move it left
+  sum too small → left pointer has the smaller number → move it right
+  <span class="highlight">O(n) instead of O(n²) brute force!</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Two Sum II (LC #167) — Time: O(n)  Space: O(1)</span>
+public int[] twoSum(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left &lt; right) {
+        int sum = nums[left] + nums[right];
+        if (sum == target) return new int[]{left+1, right+1};
+        else if (sum &lt; target) left++;    <span class="comment">// need bigger sum</span>
+        else right--;                      <span class="comment">// need smaller sum</span>
+    }
+    return new int[]{};
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func twoSum(nums []int, target int) []int {
+    left, right := 0, len(nums)-1
+    for left &lt; right {
+        sum := nums[left] + nums[right]
+        if sum == target { return []int{left+1, right+1} }
+        if sum &lt; target { left++ } else { right-- }
+    }
+    return nil
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def two_sum(nums, target):
+    left, right = 0, len(nums) - 1
+    while left &lt; right:
+        s = nums[left] + nums[right]
+        if s == target: return [left+1, right+1]
+        elif s &lt; target: left += 1
+        else: right -= 1
+    return []
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Array MUST be sorted for two-pointer to work (or sort it first, but that changes indices).</li>
+<li>Use <code>left < right</code> (strict), not <code>left <= right</code> — otherwise you compare an element with itself.</li>
+<li>For <strong>3Sum</strong>: fix one number, then two-pointer on the rest. Skip duplicates to avoid duplicate triplets.</li>
+<li>For <strong>remove duplicates in-place</strong>: use slow/fast pointer variant (two pointers same direction).</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(n)</div><div class="explain">Each pointer moves at most n steps total.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(1)</div><div class="explain">Just two pointer variables.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Get the template down<div class="tier-desc">Sorted array + two ends converging</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>167</td><td><a href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank">Two Sum II (Sorted)</a></td><td>Core two-pointer template</td></tr>
+<tr><td>125</td><td><a href="https://leetcode.com/problems/valid-palindrome/" target="_blank">Valid Palindrome</a></td><td>Two pointers from both ends — character check</td></tr>
+<tr><td>344</td><td><a href="https://leetcode.com/problems/reverse-string/" target="_blank">Reverse String</a></td><td>Swap from both ends inward</td></tr>
+<tr><td>977</td><td><a href="https://leetcode.com/problems/squares-of-a-sorted-array/" target="_blank">Squares of Sorted Array</a></td><td>Compare absolute values from both ends</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Same-direction pointers<div class="tier-desc">Slow/fast pointer on arrays</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>26</td><td><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank">Remove Duplicates</a></td><td>Slow pointer = write position, fast scans ahead</td></tr>
+<tr><td>27</td><td><a href="https://leetcode.com/problems/remove-element/" target="_blank">Remove Element</a></td><td>In-place removal with two pointers</td></tr>
+<tr><td>283</td><td><a href="https://leetcode.com/problems/move-zeroes/" target="_blank">Move Zeroes</a></td><td>Push non-zeros forward, fill zeros behind</td></tr>
+<tr><td>88</td><td><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank">Merge Sorted Array</a></td><td>Two pointers from END (right to left)</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">��</span> Confident — Multi-pointer problems<div class="tier-desc">Combine with sorting or use 3+ pointers</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>15</td><td><a href="https://leetcode.com/problems/3sum/" target="_blank">3Sum</a></td><td>Sort + fix one, two-pointer on rest</td></tr>
+<tr><td>16</td><td><a href="https://leetcode.com/problems/3sum-closest/" target="_blank">3Sum Closest</a></td><td>Track closest sum instead of exact match</td></tr>
+<tr><td>11</td><td><a href="https://leetcode.com/problems/container-with-most-water/" target="_blank">Container With Most Water</a></td><td>Move the shorter side — greedy two-pointer</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Hard two-pointer + logic</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>42</td><td><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank">Trapping Rain Water</a></td><td>Two pointers with left_max/right_max tracking</td></tr>
+<tr><td>18</td><td><a href="https://leetcode.com/problems/4sum/" target="_blank">4Sum</a></td><td>Fix two, two-pointer on rest — extend 3Sum</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 2: SLIDING WINDOW ═══════════════════════ -->
+<div class="pattern" id="sliding-window">
+<div class="pattern-header"><div class="pattern-num">2</div><div class="pattern-title">Sliding Window</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Looking through a window on a train — the window frame stays the same size, but the scenery changes as you move. Expand the window right to include more, shrink from left when the window becomes invalid. You're always looking at a "substring" or "subarray".</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">longest/shortest substring</span><span class="keyword">contiguous subarray</span><span class="keyword">at most K distinct</span><span class="keyword">maximum sum subarray of size K</span><span class="keyword">anagram/permutation in string</span><span class="keyword">window condition</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Longest Substring Without Repeating Characters — "abcabcbb"</p>
+<div class="step-box"><div class="step-title">Step 1 — Expand right pointer, track chars in window</div><pre>
+  "a b c a b c b b"
+   L     R            window = {a,b,c}, len = 3
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — 'a' repeats → shrink from left until valid</div><pre>
+  "a b c a b c b b"
+     L     R          removed 'a', window = {b,c,a}, len = 3
+</pre></div>
+<div class="step-box"><div class="step-title">Step 3 — Continue expanding and shrinking</div><pre>
+  Track max length at each valid state.
+  <span class="result">✅ Answer: 3 ("abc")</span>
+  
+  <span class="highlight">Template: for each right++, while(invalid) left++</span>
+  <span class="highlight">Answer = max(right - left + 1) over all valid windows</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Longest Substring Without Repeating (LC #3)</span>
+<span class="comment">// Time: O(n)  Space: O(min(n, charset))</span>
+public int lengthOfLongestSubstring(String s) {
+    Map&lt;Character,Integer&gt; map = new HashMap&lt;&gt;();
+    int maxLen = 0, left = 0;
+    for (int right = 0; right &lt; s.length(); right++) {
+        char c = s.charAt(right);
+        if (map.containsKey(c))
+            left = Math.max(left, map.get(c) + 1); <span class="comment">// shrink</span>
+        map.put(c, right);
+        maxLen = Math.max(maxLen, right - left + 1);
+    }
+    return maxLen;
+}
+
+<span class="comment">/* ─── SLIDING WINDOW TEMPLATE ───
+   int left = 0;
+   for (int right = 0; right &lt; n; right++) {
+       // add s[right] to window
+       while (window is invalid) {
+           // remove s[left] from window
+           left++;
+       }
+       // update answer with current window [left..right]
+   }
+*/</span>
+</pre></div>
+<div class="code-panel go"><pre>
+func lengthOfLongestSubstring(s string) int {
+    m := map[byte]int{}
+    maxLen, left := 0, 0
+    for right := 0; right &lt; len(s); right++ {
+        if idx, ok := m[s[right]]; ok && idx >= left {
+            left = idx + 1
+        }
+        m[s[right]] = right
+        if right-left+1 > maxLen { maxLen = right-left+1 }
+    }
+    return maxLen
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def length_of_longest_substring(s):
+    seen = {}
+    max_len = left = 0
+    for right, c in enumerate(s):
+        if c in seen and seen[c] >= left:
+            left = seen[c] + 1
+        seen[c] = right
+        max_len = max(max_len, right - left + 1)
+    return max_len
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li><strong>Fixed vs variable window:</strong> Fixed = always size K. Variable = expand right, shrink left when constraint breaks.</li>
+<li>Don't reset left to 0 when shrinking — only move it forward: <code>left = max(left, ...)</code>.</li>
+<li>For "find all anagrams" type: use a frequency counter, window is valid when all chars matched.</li>
+<li>Empty string → return 0. Single char → return 1.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(n)</div><div class="explain">Each element enters and leaves window at most once.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(k)</div><div class="explain">k = size of character set or window constraint.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Fixed-size window<div class="tier-desc">Window always size K — just slide it</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>643</td><td><a href="https://leetcode.com/problems/maximum-average-subarray-i/" target="_blank">Max Average Subarray I</a></td><td>Fixed window of size k — add right, remove left</td></tr>
+<tr><td>1456</td><td><a href="https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/" target="_blank">Max Vowels in Substring</a></td><td>Fixed window — count vowels</td></tr>
+<tr><td>1004</td><td><a href="https://leetcode.com/problems/max-consecutive-ones-iii/" target="_blank">Max Consecutive Ones III</a></td><td>Flip at most K zeros — variable window</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Variable-size window<div class="tier-desc">Expand right, shrink left when invalid</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>3</td><td><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank">Longest Substring Without Repeating</a></td><td>HashMap tracks last position of each char</td></tr>
+<tr><td>424</td><td><a href="https://leetcode.com/problems/longest-repeating-character-replacement/" target="_blank">Longest Repeating Character Replacement</a></td><td>Window valid if len - maxFreq ≤ k</td></tr>
+<tr><td>209</td><td><a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank">Min Size Subarray Sum</a></td><td>Shortest window with sum ≥ target</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Frequency counter windows<div class="tier-desc">Track character frequencies in window</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>438</td><td><a href="https://leetcode.com/problems/find-all-anagrams-in-a-string/" target="_blank">Find All Anagrams</a></td><td>Sliding window with frequency matching</td></tr>
+<tr><td>567</td><td><a href="https://leetcode.com/problems/permutation-in-string/" target="_blank">Permutation in String</a></td><td>Same pattern as anagrams — boolean</td></tr>
+<tr><td>340</td><td><a href="https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/" target="_blank">At Most K Distinct Characters</a></td><td>Window valid while distinct ≤ k</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Hard sliding window<div class="tier-desc">Complex conditions and multi-constraint windows</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>76</td><td><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank">Minimum Window Substring</a></td><td>Shrink to find minimum valid window — CLASSIC</td></tr>
+<tr><td>239</td><td><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank">Sliding Window Maximum</a></td><td>Monotonic deque + sliding window</td></tr>
+<tr><td>992</td><td><a href="https://leetcode.com/problems/subarrays-with-k-different-integers/" target="_blank">Subarrays with K Different Integers</a></td><td>atMost(K) - atMost(K-1) trick</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 3: PREFIX SUM ═══════════════════════ -->
+<div class="pattern" id="prefix-sum">
+<div class="pattern-header"><div class="pattern-num">3</div><div class="pattern-title">Prefix Sum</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">A running total in your bank account. "How much did I spend between March and June?" → balance(June) - balance(February). Prefix sum pre-computes cumulative sums so any range sum is just one subtraction: <strong>sum(i..j) = prefix[j+1] - prefix[i]</strong>.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">range sum query</span><span class="keyword">subarray sum equals K</span><span class="keyword">continuous subarray</span><span class="keyword">cumulative sum</span><span class="keyword">product of array except self</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Subarray Sum Equals K — [1, 1, 1], k = 2</p>
+<div class="step-box"><div class="step-title">Key Insight — prefix sum + HashMap</div><pre>
+  prefix = [0, 1, 2, 3]    <span class="comment">prefix[0]=0 always!</span>
+  
+  sum(i..j) = prefix[j+1] - prefix[i] = k
+  So we need: prefix[j+1] - k = prefix[i]  →  <span class="highlight">lookup in HashMap!</span>
+  
+  Scan prefix sums, for each p, check if (p - k) was seen before:
+  p=0: p-k=-2 not in map. map={0:1}
+  p=1: p-k=-1 not in map. map={0:1, 1:1}
+  p=2: p-k=0 <span class="highlight">in map!</span> count+=1. map={0:1, 1:1, 2:1}
+  p=3: p-k=1 <span class="highlight">in map!</span> count+=1.
+  
+  <span class="result">✅ count = 2 → subarrays [1,1] and [1,1]</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Subarray Sum Equals K (LC #560) — Time: O(n)  Space: O(n)</span>
+public int subarraySum(int[] nums, int k) {
+    Map&lt;Integer,Integer&gt; map = new HashMap&lt;&gt;();
+    map.put(0, 1);                     <span class="comment">// empty prefix</span>
+    int sum = 0, count = 0;
+    for (int num : nums) {
+        sum += num;
+        count += map.getOrDefault(sum - k, 0); <span class="comment">// need sum-k seen before</span>
+        map.merge(sum, 1, Integer::sum);
+    }
+    return count;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func subarraySum(nums []int, k int) int {
+    m := map[int]int{0: 1}
+    sum, count := 0, 0
+    for _, num := range nums {
+        sum += num
+        count += m[sum-k]
+        m[sum]++
+    }
+    return count
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def subarray_sum(nums, k):
+    prefix_count = {0: 1}
+    total = count = 0
+    for num in nums:
+        total += num
+        count += prefix_count.get(total - k, 0)
+        prefix_count[total] = prefix_count.get(total, 0) + 1
+    return count
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li><strong>Always</strong> initialize prefix map with <code>{0: 1}</code> — handles subarrays starting from index 0.</li>
+<li>For range sum queries (immutable), build prefix array once, answer queries in O(1).</li>
+<li>Prefix sum + HashMap = O(n) for "subarray sum = K". Without HashMap it's O(n²).</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(n)</div><div class="explain">Single pass + O(1) HashMap lookups.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(n)</div><div class="explain">HashMap or prefix array.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Build + query prefix array<div class="tier-desc">sum(i..j) = prefix[j+1] - prefix[i]</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>303</td><td><a href="https://leetcode.com/problems/range-sum-query-immutable/" target="_blank">Range Sum Query (Immutable)</a></td><td>Build prefix array, answer queries in O(1)</td></tr>
+<tr><td>724</td><td><a href="https://leetcode.com/problems/find-pivot-index/" target="_blank">Find Pivot Index</a></td><td>Left sum = right sum using prefix</td></tr>
+<tr><td>1480</td><td><a href="https://leetcode.com/problems/running-sum-of-1d-array/" target="_blank">Running Sum</a></td><td>Simplest prefix sum — just compute it</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Prefix + HashMap<div class="tier-desc">Count subarrays matching a condition</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>560</td><td><a href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank">Subarray Sum Equals K</a></td><td>Prefix sum + HashMap — THE pattern</td></tr>
+<tr><td>523</td><td><a href="https://leetcode.com/problems/continuous-subarray-sum/" target="_blank">Continuous Subarray Sum</a></td><td>Prefix mod k — if same mod seen → multiple of k</td></tr>
+<tr><td>974</td><td><a href="https://leetcode.com/problems/subarray-sums-divisible-by-k/" target="_blank">Subarray Sums Divisible by K</a></td><td>Count prefix sums with same remainder</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Complex prefix sum<div class="tier-desc">2D prefix sum, product variants</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>238</td><td><a href="https://leetcode.com/problems/product-of-array-except-self/" target="_blank">Product Except Self</a></td><td>Left product × right product — no division</td></tr>
+<tr><td>304</td><td><a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank">Range Sum Query 2D</a></td><td>2D prefix sum — inclusion-exclusion</td></tr>
+<tr><td>437</td><td><a href="https://leetcode.com/problems/path-sum-iii/" target="_blank">Path Sum III</a></td><td>Prefix sum on tree paths!</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 4: KADANE'S ALGORITHM ═══════════════════════ -->
+<div class="pattern" id="kadanes">
+<div class="pattern-header"><div class="pattern-num">4</div><div class="pattern-title">Kadane's Algorithm</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Imagine walking and collecting coins (positive) and paying tolls (negative). At each point you decide: "Am I better off continuing my current journey, or starting fresh from here?" If the running total drops below the current element alone, reset — start a new subarray from here.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">maximum subarray sum</span><span class="keyword">max contiguous subarray</span><span class="keyword">optimal subarray</span><span class="keyword">circular subarray</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Maximum Subarray — [-2, 1, -3, 4, -1, 2, 1, -5, 4]</p>
+<div class="step-box"><div class="step-title">At each element: max(element alone, running sum + element)</div><pre>
+  nums:     -2   1  -3   4  -1   2   1  -5   4
+  curr:     -2   1  -2  <span class="highlight">4   3   5   6</span>   1   5
+  maxSum:   -2   1   1   4   4   5  <span class="result">6</span>   6   6
+  
+  curr = max(nums[i], curr + nums[i])
+  At 4: max(4, -2+4=2) → <span class="highlight">4 (start fresh!)</span>
+  At 2: max(2, 3+2=5) → 5 (continue!)
+  
+  <span class="result">✅ Answer: 6 (subarray [4, -1, 2, 1])</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Maximum Subarray (LC #53) — O(n) time, O(1) space</span>
+public int maxSubArray(int[] nums) {
+    int curr = nums[0], maxSum = nums[0];
+    for (int i = 1; i &lt; nums.length; i++) {
+        curr = Math.max(nums[i], curr + nums[i]); <span class="comment">// restart or continue?</span>
+        maxSum = Math.max(maxSum, curr);
+    }
+    return maxSum;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func maxSubArray(nums []int) int {
+    curr, maxSum := nums[0], nums[0]
+    for _, n := range nums[1:] {
+        curr = max(n, curr+n)
+        maxSum = max(maxSum, curr)
+    }
+    return maxSum
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def max_sub_array(nums):
+    curr = max_sum = nums[0]
+    for n in nums[1:]:
+        curr = max(n, curr + n)
+        max_sum = max(max_sum, curr)
+    return max_sum
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>All negative numbers → answer is the largest (least negative) single element.</li>
+<li><strong>Circular variant:</strong> maxCircular = max(normal Kadane, totalSum - minSubarray). If all negative, use normal Kadane only.</li>
+<li>To find the actual subarray (not just the sum), track start/end indices when <code>curr</code> resets or updates <code>maxSum</code>.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Core Kadane's<div class="tier-desc">max(extend, restart) at each position</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>53</td><td><a href="https://leetcode.com/problems/maximum-subarray/" target="_blank">Maximum Subarray</a></td><td>THE Kadane's problem — must know cold</td></tr>
+<tr><td>121</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank">Best Time to Buy/Sell Stock</a></td><td>Kadane's in disguise — track min price</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Variations<div class="tier-desc">2D, circular, and product</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>918</td><td><a href="https://leetcode.com/problems/maximum-sum-circular-subarray/" target="_blank">Max Sum Circular Subarray</a></td><td>total - minSubarray trick for circular</td></tr>
+<tr><td>152</td><td><a href="https://leetcode.com/problems/maximum-product-subarray/" target="_blank">Maximum Product Subarray</a></td><td>Track both max AND min (negatives flip!)</td></tr>
+<tr><td>1749</td><td><a href="https://leetcode.com/problems/maximum-absolute-sum-of-any-subarray/" target="_blank">Max Absolute Sum of Subarray</a></td><td>max(maxKadane, -minKadane)</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Kadane's on trees and 2D<div class="tier-desc">Extend the pattern beyond 1D arrays</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>124</td><td><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank">Binary Tree Max Path Sum</a></td><td>Kadane's logic on tree DFS — extend or restart</td></tr>
+<tr><td>363</td><td><a href="https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/" target="_blank">Max Sum Rectangle No Larger Than K</a></td><td>2D Kadane's with sorted set</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 5: DUTCH NATIONAL FLAG ═══════════════════════ -->
+<div class="pattern" id="dutch-flag">
+<div class="pattern-header"><div class="pattern-num">5</div><div class="pattern-title">Dutch National Flag</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Sorting a deck of cards into three piles (red, white, blue) in a single pass. Use three pointers: <code>low</code> marks the boundary of reds, <code>mid</code> scans through, <code>high</code> marks the boundary of blues. Current card is red? Swap to front. Blue? Swap to back. White? Move on.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">sort colors (0,1,2)</span><span class="keyword">three-way partition</span><span class="keyword">partition around pivot</span><span class="keyword">move elements to sections</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Sort Colors [2, 0, 2, 1, 1, 0]</div><pre>
+  low=0, mid=0, high=5
+  
+  mid=0: nums[0]=2 → swap with high → [<span class="highlight">0</span>,0,2,1,1,<span class="highlight">2</span>] high=4
+  mid=0: nums[0]=0 → swap with low  → [0,0,2,1,1,2] low=1,mid=1
+  mid=1: nums[1]=0 → swap with low  → [0,0,2,1,1,2] low=2,mid=2
+  mid=2: nums[2]=2 → swap with high → [0,0,<span class="highlight">1</span>,1,<span class="highlight">2</span>,2] high=3
+  mid=2: nums[2]=1 → skip           → mid=3
+  mid=3: nums[3]=1 → skip           → mid=4 &gt; high → DONE
+  
+  <span class="result">✅ [0, 0, 1, 1, 2, 2]  — single pass!</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Sort Colors (LC #75) — O(n) time, O(1) space, single pass</span>
+public void sortColors(int[] nums) {
+    int lo = 0, mid = 0, hi = nums.length - 1;
+    while (mid &lt;= hi) {
+        if (nums[mid] == 0) swap(nums, lo++, mid++);
+        else if (nums[mid] == 2) swap(nums, mid, hi--);
+        else mid++;  <span class="comment">// nums[mid] == 1, leave in place</span>
+    }
+}
+void swap(int[] a, int i, int j) { int t=a[i]; a[i]=a[j]; a[j]=t; }
+</pre></div>
+<div class="code-panel go"><pre>
+func sortColors(nums []int) {
+    lo, mid, hi := 0, 0, len(nums)-1
+    for mid <= hi {
+        switch nums[mid] {
+        case 0: nums[lo], nums[mid] = nums[mid], nums[lo]; lo++; mid++
+        case 2: nums[mid], nums[hi] = nums[hi], nums[mid]; hi--
+        default: mid++
+        }
+    }
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def sort_colors(nums):
+    lo, mid, hi = 0, 0, len(nums) - 1
+    while mid <= hi:
+        if nums[mid] == 0:
+            nums[lo], nums[mid] = nums[mid], nums[lo]
+            lo += 1; mid += 1
+        elif nums[mid] == 2:
+            nums[mid], nums[hi] = nums[hi], nums[mid]
+            hi -= 1
+        else:
+            mid += 1
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>When swapping with <code>high</code>, do NOT increment <code>mid</code> — the swapped element needs checking.</li>
+<li>When swapping with <code>low</code>, you CAN increment <code>mid</code> — low region is already processed.</li>
+<li>All same values → no swaps, single pass.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Three-way partition<div class="tier-desc">lo/mid/hi pointer technique</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>75</td><td><a href="https://leetcode.com/problems/sort-colors/" target="_blank">Sort Colors</a></td><td>THE Dutch National Flag problem</td></tr>
+<tr><td>283</td><td><a href="https://leetcode.com/problems/move-zeroes/" target="_blank">Move Zeroes</a></td><td>Two-way partition — zeros to end</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Partition logic<div class="tier-desc">Apply partitioning in other contexts</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>324</td><td><a href="https://leetcode.com/problems/wiggle-sort-ii/" target="_blank">Wiggle Sort II</a></td><td>3-way partition + virtual indexing</td></tr>
+<tr><td>905</td><td><a href="https://leetcode.com/problems/sort-array-by-parity/" target="_blank">Sort Array By Parity</a></td><td>Partition odd and even — two-pointer swap</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

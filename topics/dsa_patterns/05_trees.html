@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Trees | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>🌳 Tree Patterns</h1>
+<p class="subtitle">Patterns 14–15 · Recursive thinking mastery</p>
+
+<!-- ═══════════════════════ PATTERN 14: TREE BFS (LEVEL ORDER) ═══════════════════════ -->
+<div class="pattern" id="tree-bfs">
+<div class="pattern-header"><div class="pattern-num">14</div><div class="pattern-title">Tree BFS (Level-Order Traversal)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Reading a family tree generation by generation — first the grandparents (level 0), then their children (level 1), then grandchildren (level 2). Process everyone on the current level before moving to the next. A queue naturally maintains this order.</div></div>
+
+<div class="section"><div class="section-label recognize">�� When To Recognize</div>
+<div class="keyword-list"><span class="keyword">level order traversal</span><span class="keyword">zigzag traversal</span><span class="keyword">right/left side view</span><span class="keyword">level averages</span><span class="keyword">connect next pointers</span><span class="keyword">minimum depth</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Level-Order Traversal</div><pre>
+       3
+      / \
+     9   20
+        /  \
+       15   7
+  
+  Queue:  [3]
+  Level 0: process 3, add 9,20  → <span class="highlight">[3]</span>
+  Queue:  [9, 20]
+  Level 1: process 9,20, add 15,7 → <span class="highlight">[9, 20]</span>
+  Queue:  [15, 7]
+  Level 2: process 15,7  → <span class="highlight">[15, 7]</span>
+  
+  <span class="result">✅ Result: [[3], [9,20], [15,7]]</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Level Order Traversal (LC #102) — O(n) time & space</span>
+public List&lt;List&lt;Integer&gt;&gt; levelOrder(TreeNode root) {
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    if (root == null) return res;
+    Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();
+    q.offer(root);
+    while (!q.isEmpty()) {
+        int size = q.size();          <span class="comment">// nodes at THIS level</span>
+        List&lt;Integer&gt; level = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; size; i++) {
+            TreeNode n = q.poll();
+            level.add(n.val);
+            if (n.left != null) q.offer(n.left);
+            if (n.right != null) q.offer(n.right);
+        }
+        res.add(level);
+    }
+    return res;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func levelOrder(root *TreeNode) [][]int {
+    if root == nil { return nil }
+    res := [][]int{}
+    q := []*TreeNode{root}
+    for len(q) > 0 {
+        sz := len(q); level := []int{}
+        for i := 0; i < sz; i++ {
+            n := q[0]; q = q[1:]
+            level = append(level, n.Val)
+            if n.Left != nil { q = append(q, n.Left) }
+            if n.Right != nil { q = append(q, n.Right) }
+        }
+        res = append(res, level)
+    }
+    return res
+}
+</pre></div>
+<div class="code-panel python"><pre>
+from collections import deque
+def level_order(root):
+    if not root: return []
+    res, q = [], deque([root])
+    while q:
+        level = []
+        for _ in range(len(q)):
+            n = q.popleft()
+            level.append(n.val)
+            if n.left: q.append(n.left)
+            if n.right: q.append(n.right)
+        res.append(level)
+    return res
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>The key trick: <code>size = q.size()</code> BEFORE the inner loop — captures exactly the nodes at the current level.</li>
+<li>For zigzag: alternate between appending normally and reversing each level.</li>
+<li>For right/left side view: take the first or last element of each level.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Standard level-order<div class="tier-desc">Queue + process level by level</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>102</td><td><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank">Level Order Traversal</a></td><td>Core BFS template on trees</td></tr>
+<tr><td>107</td><td><a href="https://leetcode.com/problems/binary-tree-level-order-traversal-ii/" target="_blank">Level Order II (Bottom-up)</a></td><td>Same but reverse at the end</td></tr>
+<tr><td>637</td><td><a href="https://leetcode.com/problems/average-of-levels-in-binary-tree/" target="_blank">Average of Levels</a></td><td>Sum per level / count per level</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Level information<div class="tier-desc">Use level info for special results</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>103</td><td><a href="https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/" target="_blank">Zigzag Level Order</a></td><td>Alternate direction per level</td></tr>
+<tr><td>199</td><td><a href="https://leetcode.com/problems/binary-tree-right-side-view/" target="_blank">Right Side View</a></td><td>Last element of each level</td></tr>
+<tr><td>111</td><td><a href="https://leetcode.com/problems/minimum-depth-of-binary-tree/" target="_blank">Minimum Depth</a></td><td>BFS finds shortest path — stop at first leaf</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Complex BFS<div class="tier-desc">Next pointers and serialization</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>116</td><td><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/" target="_blank">Next Right Pointers</a></td><td>Connect nodes at same level — O(1) space possible</td></tr>
+<tr><td>297</td><td><a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" target="_blank">Serialize/Deserialize Tree</a></td><td>BFS or DFS for tree string representation</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 15: TREE DFS ═══════════════════════ -->
+<div class="pattern" id="tree-dfs">
+<div class="pattern-header"><div class="pattern-num">15</div><div class="pattern-title">Tree DFS (Recursive Patterns)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Exploring a cave system — go as deep as possible down one tunnel, then backtrack and try the next tunnel. Three ways to process nodes: <strong>Pre-order</strong> (process before diving in), <strong>In-order</strong> (left first, process self, then right — gives sorted order for BST!), <strong>Post-order</strong> (process after children return).</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">max/min depth</span><span class="keyword">path sum</span><span class="keyword">diameter</span><span class="keyword">LCA (lowest common ancestor)</span><span class="keyword">validate BST</span><span class="keyword">flatten tree</span><span class="keyword">construct from traversals</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Max Depth of Binary Tree</div><pre>
+       3         Return: 1 + max(left_depth, right_depth)
+      / \
+     9   20      depth(3) = 1 + max(depth(9), depth(20))
+        /  \             = 1 + max(1, 2) = <span class="result">3</span>
+       15   7    depth(20) = 1 + max(depth(15), depth(7))
+                          = 1 + max(1, 1) = 2
+  
+  <span class="highlight">Base case: null → return 0</span>
+  <span class="highlight">Recursive case: 1 + max(left, right)</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Max Depth (LC #104)</span>
+public int maxDepth(TreeNode root) {
+    if (root == null) return 0;
+    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}
+
+<span class="comment">// Diameter (LC #543) — longest path between any two nodes</span>
+int diameter = 0;
+public int diameterOfBinaryTree(TreeNode root) {
+    depth(root); return diameter;
+}
+int depth(TreeNode node) {
+    if (node == null) return 0;
+    int l = depth(node.left), r = depth(node.right);
+    diameter = Math.max(diameter, l + r);  <span class="comment">// path through this node</span>
+    return 1 + Math.max(l, r);
+}
+
+<span class="comment">// Lowest Common Ancestor (LC #236)</span>
+public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+    if (root == null || root == p || root == q) return root;
+    TreeNode left = lowestCommonAncestor(root.left, p, q);
+    TreeNode right = lowestCommonAncestor(root.right, p, q);
+    if (left != null &amp;&amp; right != null) return root;
+    return left != null ? left : right;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func maxDepth(root *TreeNode) int {
+    if root == nil { return 0 }
+    return 1 + max(maxDepth(root.Left), maxDepth(root.Right))
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def max_depth(root):
+    if not root: return 0
+    return 1 + max(max_depth(root.left), max_depth(root.right))
+
+def lowest_common_ancestor(root, p, q):
+    if not root or root == p or root == q: return root
+    l = lowest_common_ancestor(root.left, p, q)
+    r = lowest_common_ancestor(root.right, p, q)
+    if l and r: return root
+    return l or r
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li><strong>Return value DFS vs global variable:</strong> Some problems return info up (depth, LCA). Others update a global/class variable (diameter, max path sum).</li>
+<li>For BST validation: pass min/max bounds down, check each node is within bounds.</li>
+<li>Construct tree from traversals: preorder first = root, then split inorder into left/right subtrees.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Recursive thinking<div class="tier-desc">Base case + recursive case</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>104</td><td><a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank">Maximum Depth</a></td><td>1 + max(left, right) — simplest DFS</td></tr>
+<tr><td>226</td><td><a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank">Invert Binary Tree</a></td><td>Swap left/right recursively</td></tr>
+<tr><td>100</td><td><a href="https://leetcode.com/problems/same-tree/" target="_blank">Same Tree</a></td><td>Compare two trees recursively</td></tr>
+<tr><td>572</td><td><a href="https://leetcode.com/problems/subtree-of-another-tree/" target="_blank">Subtree of Another Tree</a></td><td>Check same-tree at every node</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Path and ancestor<div class="tier-desc">Pass info up and down the tree</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>112</td><td><a href="https://leetcode.com/problems/path-sum/" target="_blank">Path Sum</a></td><td>Subtract target going down — hit 0 at leaf?</td></tr>
+<tr><td>543</td><td><a href="https://leetcode.com/problems/diameter-of-binary-tree/" target="_blank">Diameter of Binary Tree</a></td><td>Global max of left+right depth at each node</td></tr>
+<tr><td>236</td><td><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank">Lowest Common Ancestor</a></td><td>Find where p and q split — return from both sides</td></tr>
+<tr><td>98</td><td><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank">Validate BST</a></td><td>Pass min/max bounds down recursively</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Construction and serialization<div class="tier-desc">Build trees from traversal arrays</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>105</td><td><a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/" target="_blank">Build from Pre+Inorder</a></td><td>Pre[0]=root, split in-order into left/right</td></tr>
+<tr><td>230</td><td><a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank">Kth Smallest in BST</a></td><td>In-order traversal = sorted — stop at Kth</td></tr>
+<tr><td>114</td><td><a href="https://leetcode.com/problems/flatten-binary-tree-to-linked-list/" target="_blank">Flatten to Linked List</a></td><td>Pre-order flatten — reverse post-order trick</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Hard tree problems<div class="tier-desc">Complex recursive patterns</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>124</td><td><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank">Max Path Sum</a></td><td>Consider path through or not through node — hard</td></tr>
+<tr><td>235</td><td><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/" target="_blank">LCA of BST</a></td><td>Use BST property: both left → go left</td></tr>
+<tr><td>1373</td><td><a href="https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/" target="_blank">Max Sum BST in Binary Tree</a></td><td>Post-order: return (isBST, min, max, sum)</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

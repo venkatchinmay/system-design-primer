@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Patterns — Zero to Interview-Ready</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .index-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .index-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent);
+        }
+
+        .index-card .card-emoji {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .index-card .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent2);
+            margin-bottom: 6px;
+        }
+
+        .index-card .card-patterns {
+            font-size: 0.85rem;
+            color: var(--dim);
+            line-height: 1.5;
+        }
+
+        .index-card .card-count {
+            display: inline-block;
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .hero {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #38bdf8, #a855f7, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: var(--dim);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat .label {
+            font-size: 0.8rem;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mixed-card {
+            border-color: rgba(168, 85, 247, .3);
+            background: linear-gradient(135deg, var(--card), rgba(168, 85, 247, .05));
+        }
+
+        .mixed-card .card-title {
+            color: #a855f7;
+        }
+
+        .levels-bar {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: .7rem;
+            font-weight: 600;
+        }
+
+        .levels-bar span {
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .lvl-b {
+            background: rgba(16, 185, 129, .12);
+            color: var(--green);
+        }
+
+        .lvl-i {
+            background: rgba(59, 130, 246, .12);
+            color: #60a5fa;
+        }
+
+        .lvl-c {
+            background: rgba(245, 158, 11, .12);
+            color: var(--accent3);
+        }
+
+        .lvl-r {
+            background: rgba(239, 68, 68, .12);
+            color: var(--red);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <h1>🎯 DSA Patterns Guide</h1>
+        <p>Zero to Interview-Ready — Master 35 patterns, solve 200+ problems, crack top tech companies</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="num">35</div>
+            <div class="label">Patterns</div>
+        </div>
+        <div class="stat">
+            <div class="num">200+</div>
+            <div class="label">Problems</div>
+        </div>
+        <div class="stat">
+            <div class="num">3</div>
+            <div class="label">Languages</div>
+        </div>
+        <div class="stat">
+            <div class="num">9</div>
+            <div class="label">Modules</div>
+        </div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:6px">
+        <div class="levels-bar" style="justify-content:center"><span class="lvl-b">🌱 Beginner</span><span
+                class="lvl-i">🌿 Intermediate</span><span class="lvl-c">🌲 Confident</span><span class="lvl-r">🏆
+                Interview-Ready</span></div>
+    </div>
+
+    <div class="index-grid">
+
+        <a href="01_array_string.html" class="index-card">
+            <div class="card-emoji">📊</div>
+            <div class="card-title">Array & String Patterns</div>
+            <div class="card-patterns">Two Pointers · Sliding Window · Prefix Sum · Kadane's Algorithm · Dutch National
+                Flag</div>
+            <div class="card-count">5 Patterns · #1–5</div>
+        </a>
+
+        <a href="02_search_sort.html" class="index-card">
+            <div class="card-emoji">🔍</div>
+            <div class="card-title">Searching & Sorting</div>
+            <div class="card-patterns">Binary Search · Merge Intervals · Cyclic Sort</div>
+            <div class="card-count">3 Patterns · #6–8</div>
+        </a>
+
+        <a href="03_linked_list.html" class="index-card">
+            <div class="card-emoji">🔗</div>
+            <div class="card-title">Linked List Patterns</div>
+            <div class="card-patterns">Fast & Slow Pointers (Floyd's) · In-Place Linked List Reversal</div>
+            <div class="card-count">2 Patterns · #9–10</div>
+        </a>
+
+        <a href="04_stack_queue.html" class="index-card">
+            <div class="card-emoji">📚</div>
+            <div class="card-title">Stack & Queue Patterns</div>
+            <div class="card-patterns">Monotonic Stack · Monotonic Queue (Sliding Window Maximum)</div>
+            <div class="card-count">2 Patterns · #11–12</div>
+        </a>
+
+        <a href="05_trees.html" class="index-card">
+            <div class="card-emoji">🌳</div>
+            <div class="card-title">Tree Patterns</div>
+            <div class="card-patterns">DFS Traversals (Pre/In/Post) · BFS Level Order · Tree Construction</div>
+            <div class="card-count">3 Patterns · #13–15</div>
+        </a>
+
+        <a href="06_graphs.html" class="index-card">
+            <div class="card-emoji">📊</div>
+            <div class="card-title">Graph Patterns</div>
+            <div class="card-patterns">BFS · DFS · Topological Sort · Union-Find · Dijkstra</div>
+            <div class="card-count">5 Patterns · #16–20</div>
+        </a>
+
+        <a href="07_dp.html" class="index-card">
+            <div class="card-emoji">🧮</div>
+            <div class="card-title">Dynamic Programming</div>
+            <div class="card-patterns">Knapsack · Fibonacci · LCS · LIS · Grid · String · Interval · Bitmask · State
+                Machine</div>
+            <div class="card-count">10 Patterns · #21–30</div>
+        </a>
+
+        <a href="08_advanced.html" class="index-card">
+            <div class="card-emoji">🚀</div>
+            <div class="card-title">Advanced Patterns</div>
+            <div class="card-patterns">Backtracking · Trie · Greedy · Heap / Top-K · Two Heaps (Median)</div>
+            <div class="card-count">5 Patterns · #31–35</div>
+        </a>
+
+        <a href="09_mixed_practice.html" class="index-card mixed-card" style="grid-column: 1 / -1;">
+            <div class="card-emoji">🎯</div>
+            <div class="card-title">Mixed-Pattern Practice — The Final Challenge</div>
+            <div class="card-patterns">30 curated problems combining 2-3+ patterns each · Warm-Up → Intermediate →
+                Confident → Interview Simulation · Includes a 10-week study plan</div>
+            <div class="card-count">30 Mixed Problems · Levels A–D</div>
+        </a>
+
+    </div>
+
+    <script src="tabs.js"></script>
+</body>
+
+</html>

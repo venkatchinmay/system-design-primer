@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Searching & Sorting | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>🔍 Searching & Sorting Patterns</h1>
+<p class="subtitle">Patterns 6–8 · Master the art of divide and conquer</p>
+
+<!-- ═══════════════════════ PATTERN 6: BINARY SEARCH ═══════════════════════ -->
+<div class="pattern" id="binary-search">
+<div class="pattern-header"><div class="pattern-num">6</div><div class="pattern-title">Binary Search</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Looking up a word in a dictionary — you open to the middle, check if your word is before or after, then repeat on the correct half. Each step eliminates HALF the remaining pages. 1000 pages? Only 10 steps! That's O(log n).</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">sorted array</span><span class="keyword">find target/boundary</span><span class="keyword">O(log n) required</span><span class="keyword">search in rotated</span><span class="keyword">find min/max that satisfies</span><span class="keyword">binary search on answer</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Find target = 7 in [1, 3, 5, 7, 9, 11]</p>
+<div class="step-box"><div class="step-title">Step-by-step elimination</div><pre>
+  [1, 3, 5, 7, 9, 11]    lo=0, hi=5, mid=2 → nums[2]=5 &lt; 7 → <span class="highlight">lo=3</span>
+  [         7, 9, 11]    lo=3, hi=5, mid=4 → nums[4]=9 &gt; 7 → <span class="highlight">hi=3</span>
+  [         7        ]    lo=3, hi=3, mid=3 → nums[3]=7 = 7  <span class="result">✅ Found!</span>
+  
+  <span class="highlight">3 steps instead of 6! O(log n) vs O(n)</span>
+  
+  Key variants:
+  • Find exact target:   lo &lt;= hi, return mid
+  • Find leftmost:       lo &lt; hi, if match hi=mid
+  • Find rightmost:      lo &lt; hi, if match lo=mid+1
+  • Search on answer:    binary search on the RESULT space
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Standard Binary Search — O(log n)</span>
+int binarySearch(int[] nums, int target) {
+    int lo = 0, hi = nums.length - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;   <span class="comment">// avoid overflow!</span>
+        if (nums[mid] == target) return mid;
+        else if (nums[mid] &lt; target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+}
+
+<span class="comment">// Find first occurrence (leftmost)</span>
+int lowerBound(int[] nums, int target) {
+    int lo = 0, hi = nums.length;
+    while (lo &lt; hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] &lt; target) lo = mid + 1;
+        else hi = mid;            <span class="comment">// don't skip — might be the answer</span>
+    }
+    return lo;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func binarySearch(nums []int, target int) int {
+    lo, hi := 0, len(nums)-1
+    for lo <= hi {
+        mid := lo + (hi-lo)/2
+        if nums[mid] == target { return mid }
+        if nums[mid] < target { lo = mid+1 } else { hi = mid-1 }
+    }
+    return -1
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def binary_search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target: return mid
+        elif nums[mid] < target: lo = mid + 1
+        else: hi = mid - 1
+    return -1
+
+<span class="comment"># Python has bisect module:</span>
+<span class="comment"># bisect.bisect_left(nums, target)  — lower bound</span>
+<span class="comment"># bisect.bisect_right(nums, target) — upper bound</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Use <code>lo + (hi - lo) / 2</code> instead of <code>(lo + hi) / 2</code> to avoid integer overflow.</li>
+<li>Off-by-one errors: carefully choose <code>lo <= hi</code> vs <code>lo < hi</code> and <code>hi = mid</code> vs <code>hi = mid - 1</code>.</li>
+<li><strong>Binary search on answer:</strong> when the problem says "find the minimum/maximum value that satisfies condition" — binary search on the answer space!</li>
+<li>Rotated array: check which half is sorted, then decide which half to search.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(log n)</div><div class="explain">Halve the search space each step.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(1)</div><div class="explain">Just two pointers (iterative).</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Standard binary search<div class="tier-desc">Find exact target in sorted array</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>704</td><td><a href="https://leetcode.com/problems/binary-search/" target="_blank">Binary Search</a></td><td>Pure template — find target</td></tr>
+<tr><td>35</td><td><a href="https://leetcode.com/problems/search-insert-position/" target="_blank">Search Insert Position</a></td><td>Find insertion point = lower bound</td></tr>
+<tr><td>374</td><td><a href="https://leetcode.com/problems/guess-number-higher-or-lower/" target="_blank">Guess Number Higher or Lower</a></td><td>Binary search with comparison API</td></tr>
+<tr><td>278</td><td><a href="https://leetcode.com/problems/first-bad-version/" target="_blank">First Bad Version</a></td><td>Find leftmost true — boundary search</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Boundary finding<div class="tier-desc">Find first/last occurrence, peaks</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>34</td><td><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank">First and Last Position</a></td><td>Two binary searches: lower + upper bound</td></tr>
+<tr><td>162</td><td><a href="https://leetcode.com/problems/find-peak-element/" target="_blank">Find Peak Element</a></td><td>Binary search on unsorted — compare neighbors</td></tr>
+<tr><td>69</td><td><a href="https://leetcode.com/problems/sqrtx/" target="_blank">Sqrt(x)</a></td><td>Binary search on answer: find largest k where k²≤x</td></tr>
+<tr><td>875</td><td><a href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank">Koko Eating Bananas</a></td><td>Binary search on answer — min speed to finish</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Rotated and modified arrays<div class="tier-desc">Search in non-standard sorted arrays</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>33</td><td><a href="https://leetcode.com/problems/search-in-rotated-sorted-array/" target="_blank">Search in Rotated Array</a></td><td>Check which half is sorted first</td></tr>
+<tr><td>153</td><td><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank">Find Min in Rotated Array</a></td><td>Find rotation point</td></tr>
+<tr><td>74</td><td><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank">Search a 2D Matrix</a></td><td>Treat 2D matrix as 1D sorted array</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Advanced binary search applications</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>4</td><td><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank">Median of Two Sorted Arrays</a></td><td>Binary search on partition — hardest BS problem</td></tr>
+<tr><td>410</td><td><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank">Split Array Largest Sum</a></td><td>Binary search on answer + greedy validation</td></tr>
+<tr><td>1011</td><td><a href="https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/" target="_blank">Ship Packages in D Days</a></td><td>Binary search on capacity — same pattern as Koko</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 7: MERGE INTERVALS ═══════════════════════ -->
+<div class="pattern" id="merge-intervals">
+<div class="pattern-header"><div class="pattern-num">7</div><div class="pattern-title">Merge Intervals</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Scheduling meetings — if one meeting is 9-11 and another is 10-12, they overlap and become one block 9-12. Sort all meetings by start time, then scan through: if the current meeting overlaps with the previous, merge them. Otherwise, it's a new separate block.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">intervals</span><span class="keyword">overlapping meetings</span><span class="keyword">merge/insert interval</span><span class="keyword">meeting rooms</span><span class="keyword">minimum platforms</span><span class="keyword">non-overlapping</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Merge [[1,3],[2,6],[8,10],[15,18]]</div><pre>
+  Sorted by start: [1,3], [2,6], [8,10], [15,18]
+  
+  Take [1,3]. Next [2,6]: 2 ≤ 3 → overlap! → merge to [1,<span class="highlight">6</span>]
+  Next [8,10]: 8 &gt; 6 → no overlap → add new [8,10]
+  Next [15,18]: 15 &gt; 10 → no overlap → add [15,18]
+  
+  <span class="result">✅ Result: [[1,6],[8,10],[15,18]]</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Merge Intervals (LC #56) — Time: O(n log n)  Space: O(n)</span>
+public int[][] merge(int[][] intervals) {
+    Arrays.sort(intervals, (a,b) -> a[0]-b[0]);
+    List&lt;int[]&gt; res = new ArrayList&lt;&gt;();
+    res.add(intervals[0]);
+    for (int i = 1; i &lt; intervals.length; i++) {
+        int[] last = res.get(res.size()-1);
+        if (intervals[i][0] &lt;= last[1])       <span class="comment">// overlap</span>
+            last[1] = Math.max(last[1], intervals[i][1]);
+        else
+            res.add(intervals[i]);              <span class="comment">// no overlap</span>
+    }
+    return res.toArray(new int[0][]);
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func merge(intervals [][]int) [][]int {
+    sort.Slice(intervals, func(i,j int) bool { return intervals[i][0] < intervals[j][0] })
+    res := [][]int{intervals[0]}
+    for _, iv := range intervals[1:] {
+        last := res[len(res)-1]
+        if iv[0] <= last[1] {
+            last[1] = max(last[1], iv[1])
+        } else {
+            res = append(res, iv)
+        }
+    }
+    return res
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def merge(intervals):
+    intervals.sort(key=lambda x: x[0])
+    res = [intervals[0]]
+    for start, end in intervals[1:]:
+        if start <= res[-1][1]:
+            res[-1][1] = max(res[-1][1], end)
+        else:
+            res.append([start, end])
+    return res
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>Single interval → return as-is. All overlapping → one big interval.</li>
+<li><strong>Meeting Rooms II:</strong> use sweep line (sort starts/ends separately, or min-heap of end times).</li>
+<li>When inserting a new interval, it may merge with multiple existing intervals.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Sort + merge template<div class="tier-desc">Sort by start, compare end times</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>56</td><td><a href="https://leetcode.com/problems/merge-intervals/" target="_blank">Merge Intervals</a></td><td>Core template — sort + linear scan + merge</td></tr>
+<tr><td>252</td><td><a href="https://leetcode.com/problems/meeting-rooms/" target="_blank">Meeting Rooms</a></td><td>Any overlap? Sort by start, check adjacent</td></tr>
+<tr><td>57</td><td><a href="https://leetcode.com/problems/insert-interval/" target="_blank">Insert Interval</a></td><td>Insert and merge — handle before/overlap/after</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Counting overlaps<div class="tier-desc">How many intervals overlap at peak?</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>253</td><td><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank">Meeting Rooms II</a></td><td>Min rooms = max concurrent meetings (heap or sweep)</td></tr>
+<tr><td>435</td><td><a href="https://leetcode.com/problems/non-overlapping-intervals/" target="_blank">Non-Overlapping Intervals</a></td><td>Greedy: remove min intervals to eliminate overlap</td></tr>
+<tr><td>986</td><td><a href="https://leetcode.com/problems/interval-list-intersections/" target="_blank">Interval List Intersections</a></td><td>Two sorted lists — find all intersections</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Complex interval problems<div class="tier-desc">Sweep line and advanced merging</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>759</td><td><a href="https://leetcode.com/problems/employee-free-time/" target="_blank">Employee Free Time</a></td><td>Merge all employee schedules → find gaps</td></tr>
+<tr><td>1288</td><td><a href="https://leetcode.com/problems/remove-covered-intervals/" target="_blank">Remove Covered Intervals</a></td><td>Sort by start, then by end descending</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 8: CYCLIC SORT ═══════════════════════ -->
+<div class="pattern" id="cyclic-sort">
+<div class="pattern-header"><div class="pattern-num">8</div><div class="pattern-title">Cyclic Sort</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Numbered lockers — each item has a number and should go in the matching locker. Pick up item, put it in its correct locker, take whatever was there, repeat. After one pass, anything in the wrong spot reveals a missing or duplicate number.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">numbers 1 to N</span><span class="keyword">missing number</span><span class="keyword">find duplicate</span><span class="keyword">first missing positive</span><span class="keyword">in-place, O(1) space</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Find Missing Number in [3, 0, 1] (range 0-3)</div><pre>
+  Place each number at index = its value:
+  i=0: nums[0]=3, should be at index 3 (out of bounds) → skip, i++
+  i=1: nums[1]=0, should be at index 0 → swap → [<span class="highlight">0</span>, 3, 1]
+  i=1: nums[1]=3, out of bounds → skip
+  i=2: nums[2]=1, should be at index 1 → swap → [0, <span class="highlight">1</span>, 3]
+  
+  Now scan: nums[i] ≠ i?  →  index 2 has 3, not 2  → <span class="result">✅ missing = 2</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Missing Number (LC #268) — O(n) time, O(1) space</span>
+public int missingNumber(int[] nums) {
+    int i = 0;
+    while (i &lt; nums.length) {
+        if (nums[i] &lt; nums.length &amp;&amp; nums[i] != i)
+            swap(nums, i, nums[i]);    <span class="comment">// place at correct index</span>
+        else i++;
+    }
+    for (i = 0; i &lt; nums.length; i++)
+        if (nums[i] != i) return i;
+    return nums.length;
+}
+
+<span class="comment">// First Missing Positive (LC #41) — same idea, range [1..n]</span>
+public int firstMissingPositive(int[] nums) {
+    int n = nums.length;
+    for (int i = 0; i &lt; n; i++)
+        while (nums[i] &gt; 0 &amp;&amp; nums[i] &lt;= n &amp;&amp; nums[nums[i]-1] != nums[i])
+            swap(nums, i, nums[i]-1);
+    for (int i = 0; i &lt; n; i++)
+        if (nums[i] != i+1) return i+1;
+    return n+1;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func missingNumber(nums []int) int {
+    for i := 0; i < len(nums); {
+        if nums[i] < len(nums) && nums[i] != i {
+            nums[i], nums[nums[i]] = nums[nums[i]], nums[i]
+        } else { i++ }
+    }
+    for i, n := range nums { if n != i { return i } }
+    return len(nums)
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def missing_number(nums):
+    i, n = 0, len(nums)
+    while i < n:
+        if nums[i] < n and nums[i] != i:
+            nums[nums[i]], nums[i] = nums[i], nums[nums[i]]
+        else:
+            i += 1
+    for i in range(n):
+        if nums[i] != i: return i
+    return n
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Place numbers at correct index<div class="tier-desc">Swap until everything in place</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>268</td><td><a href="https://leetcode.com/problems/missing-number/" target="_blank">Missing Number</a></td><td>Place each at index=value, find the gap</td></tr>
+<tr><td>448</td><td><a href="https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/" target="_blank">Find Disappeared Numbers</a></td><td>Same technique — collect ALL missing numbers</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Find duplicates<div class="tier-desc">After sorting in-place, duplicates stand out</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>287</td><td><a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank">Find the Duplicate Number</a></td><td>Floyd's cycle detection (or cyclic sort)</td></tr>
+<tr><td>442</td><td><a href="https://leetcode.com/problems/find-all-duplicates-in-an-array/" target="_blank">Find All Duplicates</a></td><td>Negate-as-marker or cyclic sort</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — The classic hard<div class="tier-desc">Find first missing positive in O(n) / O(1)</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>41</td><td><a href="https://leetcode.com/problems/first-missing-positive/" target="_blank">First Missing Positive</a></td><td>Cyclic sort range [1..n] — FAANG favorite</td></tr>
+<tr><td>765</td><td><a href="https://leetcode.com/problems/couples-holding-hands/" target="_blank">Couples Holding Hands</a></td><td>Cyclic sort on pairs — min swaps</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

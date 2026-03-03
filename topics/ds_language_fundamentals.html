@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structures — Language Fundamentals Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f111a;--card:#1a1d2e;--border:#2a2d3e;--accent:#7c3aed;--accent2:#06b6d4;--accent3:#f59e0b;--java:#f89820;--go:#00add8;--python:#3776ab;--text:#e2e8f0;--dim:#94a3b8;--code-bg:#141625}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:20px 30px;line-height:1.5}
+h1{text-align:center;font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--java),var(--accent),var(--go),var(--python));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.subtitle{text-align:center;color:var(--dim);font-size:.95rem;margin-bottom:30px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin:28px 0 12px;padding-left:12px;border-left:4px solid var(--accent2)}
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:.82rem;table-layout:fixed}
+th{background:linear-gradient(135deg,#1e2035,#252845);padding:10px 8px;text-align:left;font-weight:700;border-bottom:2px solid var(--accent);font-size:.85rem}
+th:first-child{width:18%;color:var(--accent2)}
+th:nth-child(2){width:27.3%;color:var(--java)}
+th:nth-child(3){width:27.3%;color:var(--go)}
+th:nth-child(4){width:27.3%;color:var(--python)}
+td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{font-weight:600;color:var(--dim);font-size:.8rem}
+tr:hover{background:rgba(124,58,237,.06)}
+code{font-family:'JetBrains Mono',monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.78rem;color:#c4b5fd;white-space:pre-wrap;word-break:break-all}
+.lang-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.7rem;font-weight:700;margin-right:4px}
+.java-b{background:rgba(248,152,32,.15);color:var(--java)}
+.go-b{background:rgba(0,173,216,.15);color:var(--go)}
+.py-b{background:rgba(55,118,171,.15);color:var(--python)}
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.note{background:rgba(6,182,212,.08);border-left:3px solid var(--accent2);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-size:.8rem;color:var(--dim)}
+@media print{body{background:#fff;color:#111;padding:10px}h1{-webkit-text-fill-color:#111;font-size:1.6rem}h2{color:#0e7490}th{background:#f1f5f9}td,th{border:1px solid #ccc;font-size:.72rem}code{background:#f1f5f9;color:#6d28d9}tr:hover{background:transparent}.section-card{border-color:#ddd}.note{background:#f0f9ff}}
+@page{size:A4 landscape;margin:10mm}
+</style>
+</head>
+<body>
+<h1>🧱 DS Language Fundamentals — Java · Go · Python</h1>
+<p class="subtitle">Side-by-side quick-revision reference for coding Data Structures &amp; Algorithms</p>
+
+<!-- ===================== 1. VARIABLES & TYPES ===================== -->
+<h2>1 · Variables &amp; Type Basics</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Declare int</td><td><code>int x = 5;</code></td><td><code>x := 5</code></td><td><code>x = 5</code></td></tr>
+<tr><td>Max / Min int</td><td><code>Integer.MAX_VALUE
+Integer.MIN_VALUE</code></td><td><code>math.MaxInt
+math.MinInt</code></td><td><code>float('inf')
+float('-inf')</code></td></tr>
+<tr><td>Boolean</td><td><code>boolean b = true;</code></td><td><code>b := true</code></td><td><code>b = True</code></td></tr>
+<tr><td>Null / Nil</td><td><code>null</code></td><td><code>nil</code></td><td><code>None</code></td></tr>
+<tr><td>Type cast (int↔float)</td><td><code>(int) 3.14
+(double) 5</code></td><td><code>int(3.14)
+float64(5)</code></td><td><code>int(3.14)
+float(5)</code></td></tr>
+<tr><td>String → int</td><td><code>Integer.parseInt("42")</code></td><td><code>strconv.Atoi("42")</code></td><td><code>int("42")</code></td></tr>
+<tr><td>Int → string</td><td><code>String.valueOf(42)</code></td><td><code>strconv.Itoa(42)</code></td><td><code>str(42)</code></td></tr>
+<tr><td>Char → int (ASCII)</td><td><code>(int) 'A'  // 65</code></td><td><code>int('A')  // 65</code></td><td><code>ord('A')  # 65</code></td></tr>
+<tr><td>Int → char</td><td><code>(char) 65  // 'A'</code></td><td><code>string(rune(65))</code></td><td><code>chr(65)  # 'A'</code></td></tr>
+<tr><td>Swap vars</td><td><code>int t=a; a=b; b=t;</code></td><td><code>a, b = b, a</code></td><td><code>a, b = b, a</code></td></tr>
+</table></div>
+
+<!-- ===================== 2. STRINGS ===================== -->
+<h2>2 · Strings</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Length</td><td><code>s.length()</code></td><td><code>len(s)</code></td><td><code>len(s)</code></td></tr>
+<tr><td>Char at index</td><td><code>s.charAt(i)</code></td><td><code>s[i] // byte</code></td><td><code>s[i]</code></td></tr>
+<tr><td>Substring</td><td><code>s.substring(i, j)</code></td><td><code>s[i:j]</code></td><td><code>s[i:j]</code></td></tr>
+<tr><td>Contains</td><td><code>s.contains("ab")</code></td><td><code>strings.Contains(s,"ab")</code></td><td><code>"ab" in s</code></td></tr>
+<tr><td>Index of</td><td><code>s.indexOf("ab")</code></td><td><code>strings.Index(s,"ab")</code></td><td><code>s.find("ab")</code></td></tr>
+<tr><td>Split</td><td><code>s.split(",")</code></td><td><code>strings.Split(s,",")</code></td><td><code>s.split(",")</code></td></tr>
+<tr><td>Join</td><td><code>String.join(",", arr)</code></td><td><code>strings.Join(sl,",")</code></td><td><code>",".join(lst)</code></td></tr>
+<tr><td>To lower / upper</td><td><code>s.toLowerCase()
+s.toUpperCase()</code></td><td><code>strings.ToLower(s)
+strings.ToUpper(s)</code></td><td><code>s.lower()
+s.upper()</code></td></tr>
+<tr><td>Trim whitespace</td><td><code>s.trim()</code></td><td><code>strings.TrimSpace(s)</code></td><td><code>s.strip()</code></td></tr>
+<tr><td>Replace</td><td><code>s.replace("a","b")</code></td><td><code>strings.ReplaceAll(s,"a","b")</code></td><td><code>s.replace("a","b")</code></td></tr>
+<tr><td>Starts / Ends with</td><td><code>s.startsWith("ab")
+s.endsWith("cd")</code></td><td><code>strings.HasPrefix(s,"ab")
+strings.HasSuffix(s,"cd")</code></td><td><code>s.startswith("ab")
+s.endswith("cd")</code></td></tr>
+<tr><td>Mutable builder</td><td><code>StringBuilder sb = new StringBuilder();
+sb.append("x");
+sb.toString();</code></td><td><code>var b strings.Builder
+b.WriteString("x")
+b.String()</code></td><td><code>parts = []
+parts.append("x")
+"".join(parts)</code></td></tr>
+<tr><td>Is alphanumeric</td><td><code>Character.isLetterOrDigit(c)</code></td><td><code>unicode.IsLetter(r) ||
+unicode.IsDigit(r)</code></td><td><code>c.isalnum()</code></td></tr>
+<tr><td>Compare</td><td><code>s1.equals(s2)
+s1.compareTo(s2)</code></td><td><code>s1 == s2
+strings.Compare(s1,s2)</code></td><td><code>s1 == s2</code></td></tr>
+</table></div>
+
+<!-- ===================== 3. ARRAYS / SLICES / LISTS ===================== -->
+<h2>3 · Arrays / Slices / Lists</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Create fixed</td><td><code>int[] a = new int[n];</code></td><td><code>a := make([]int, n)</code></td><td><code>a = [0] * n</code></td></tr>
+<tr><td>Create with values</td><td><code>int[] a = {1,2,3};</code></td><td><code>a := []int{1,2,3}</code></td><td><code>a = [1,2,3]</code></td></tr>
+<tr><td>Dynamic list</td><td><code>List&lt;Integer&gt; l =
+  new ArrayList&lt;&gt;();</code></td><td><code>var l []int</code></td><td><code>l = []</code></td></tr>
+<tr><td>Length</td><td><code>a.length // array
+l.size() // list</code></td><td><code>len(a)</code></td><td><code>len(a)</code></td></tr>
+<tr><td>Get element</td><td><code>a[i]  or  l.get(i)</code></td><td><code>a[i]</code></td><td><code>a[i]</code></td></tr>
+<tr><td>Set element</td><td><code>a[i]=v; or l.set(i,v);</code></td><td><code>a[i] = v</code></td><td><code>a[i] = v</code></td></tr>
+<tr><td>Append</td><td><code>l.add(v);</code></td><td><code>a = append(a, v)</code></td><td><code>a.append(v)</code></td></tr>
+<tr><td>Insert at index</td><td><code>l.add(i, v);</code></td><td><code>a = append(a[:i],
+  append([]int{v},a[i:]...)...)</code></td><td><code>a.insert(i, v)</code></td></tr>
+<tr><td>Remove at index</td><td><code>l.remove(i);</code></td><td><code>a = append(a[:i],a[i+1:]...)</code></td><td><code>a.pop(i)</code></td></tr>
+<tr><td>Remove last</td><td><code>l.remove(l.size()-1);</code></td><td><code>a = a[:len(a)-1]</code></td><td><code>a.pop()</code></td></tr>
+<tr><td>Slice / Sub-array</td><td><code>Arrays.copyOfRange(a,i,j)</code></td><td><code>a[i:j]</code></td><td><code>a[i:j]</code></td></tr>
+<tr><td>Sort</td><td><code>Arrays.sort(a);
+Collections.sort(l);</code></td><td><code>sort.Ints(a)
+slices.Sort(a)</code></td><td><code>a.sort()
+sorted(a)</code></td></tr>
+<tr><td>Sort descending</td><td><code>Arrays.sort(a);  // then reverse
+Collections.sort(l,
+  Collections.reverseOrder());</code></td><td><code>sort.Sort(
+  sort.Reverse(
+    sort.IntSlice(a)))</code></td><td><code>a.sort(reverse=True)</code></td></tr>
+<tr><td>Custom sort</td><td><code>Arrays.sort(a, (x,y)-&gt;x-y);</code></td><td><code>sort.Slice(a,
+  func(i,j int) bool {
+    return a[i]&lt;a[j]
+  })</code></td><td><code>a.sort(key=lambda x: x)</code></td></tr>
+<tr><td>Binary search</td><td><code>Arrays.binarySearch(a, k)</code></td><td><code>sort.SearchInts(a, k)</code></td><td><code>bisect.bisect_left(a, k)</code></td></tr>
+<tr><td>Reverse</td><td><code>Collections.reverse(l);</code></td><td><code>slices.Reverse(a)</code></td><td><code>a.reverse()
+a[::-1]</code></td></tr>
+<tr><td>Fill</td><td><code>Arrays.fill(a, val);</code></td><td><code>for i := range a {
+  a[i] = val
+}</code></td><td><code>a = [val] * n</code></td></tr>
+<tr><td>Copy</td><td><code>a.clone()
+new ArrayList&lt;&gt;(l)</code></td><td><code>b := make([]int,len(a))
+copy(b, a)</code></td><td><code>b = a[:]
+b = a.copy()</code></td></tr>
+<tr><td>2D array</td><td><code>int[][] g = new int[m][n];</code></td><td><code>g := make([][]int, m)
+for i := range g {
+  g[i] = make([]int, n)
+}</code></td><td><code>g = [[0]*n for _ in range(m)]</code></td></tr>
+<tr><td>Iterate</td><td><code>for (int x : a) { }</code></td><td><code>for i, v := range a { }</code></td><td><code>for x in a:
+for i,x in enumerate(a):</code></td></tr>
+</table></div>
+
+<!-- ===================== 4. HASHMAP / DICT ===================== -->
+<h2>4 · HashMap / Dictionary / Map</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Create</td><td><code>Map&lt;String,Integer&gt; m =
+  new HashMap&lt;&gt;();</code></td><td><code>m := map[string]int{}</code></td><td><code>m = {}
+m = dict()</code></td></tr>
+<tr><td>Put / Set</td><td><code>m.put(k, v);</code></td><td><code>m[k] = v</code></td><td><code>m[k] = v</code></td></tr>
+<tr><td>Get</td><td><code>m.get(k)</code></td><td><code>v := m[k]</code></td><td><code>m[k]  or  m.get(k)</code></td></tr>
+<tr><td>Get with default</td><td><code>m.getOrDefault(k, def)</code></td><td><code>v, ok := m[k]
+if !ok { v = def }</code></td><td><code>m.get(k, default)</code></td></tr>
+<tr><td>Contains key</td><td><code>m.containsKey(k)</code></td><td><code>_, ok := m[k]</code></td><td><code>k in m</code></td></tr>
+<tr><td>Delete</td><td><code>m.remove(k);</code></td><td><code>delete(m, k)</code></td><td><code>del m[k]</code></td></tr>
+<tr><td>Size</td><td><code>m.size()</code></td><td><code>len(m)</code></td><td><code>len(m)</code></td></tr>
+<tr><td>Iterate</td><td><code>for (var e : m.entrySet())
+  e.getKey(); e.getValue();</code></td><td><code>for k, v := range m { }</code></td><td><code>for k,v in m.items():</code></td></tr>
+<tr><td>All keys</td><td><code>m.keySet()</code></td><td><code>// loop: for k := range m</code></td><td><code>m.keys()</code></td></tr>
+<tr><td>All values</td><td><code>m.values()</code></td><td><code>// loop: for _,v := range m</code></td><td><code>m.values()</code></td></tr>
+<tr><td>Counter pattern</td><td><code>m.merge(k, 1, Integer::sum);</code></td><td><code>m[k]++</code></td><td><code>from collections import Counter
+c = Counter(lst)</code></td></tr>
+<tr><td>DefaultDict</td><td><code>m.computeIfAbsent(k,
+  x-&gt;new ArrayList&lt;&gt;());</code></td><td><code>// zero-value auto exists</code></td><td><code>from collections import defaultdict
+d = defaultdict(list)</code></td></tr>
+</table></div>
+
+<!-- ===================== 5. HASHSET / SET ===================== -->
+<h2>5 · HashSet / Set</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Create</td><td><code>Set&lt;Integer&gt; s =
+  new HashSet&lt;&gt;();</code></td><td><code>s := map[int]bool{}</code></td><td><code>s = set()</code></td></tr>
+<tr><td>Add</td><td><code>s.add(v);</code></td><td><code>s[v] = true</code></td><td><code>s.add(v)</code></td></tr>
+<tr><td>Contains</td><td><code>s.contains(v)</code></td><td><code>s[v]  // false if missing</code></td><td><code>v in s</code></td></tr>
+<tr><td>Remove</td><td><code>s.remove(v);</code></td><td><code>delete(s, v)</code></td><td><code>s.remove(v)
+s.discard(v)</code></td></tr>
+<tr><td>Size</td><td><code>s.size()</code></td><td><code>len(s)</code></td><td><code>len(s)</code></td></tr>
+<tr><td>Union</td><td><code>s1.addAll(s2);</code></td><td><code>for k := range s2 {
+  s1[k]=true
+}</code></td><td><code>s1 | s2</code></td></tr>
+<tr><td>Intersection</td><td><code>s1.retainAll(s2);</code></td><td><code>// manual loop</code></td><td><code>s1 & s2</code></td></tr>
+<tr><td>Difference</td><td><code>s1.removeAll(s2);</code></td><td><code>// manual loop</code></td><td><code>s1 - s2</code></td></tr>
+</table></div>
+
+<!-- ===================== 6. STACK ===================== -->
+<h2>6 · Stack</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Create</td><td><code>Deque&lt;Integer&gt; st =
+  new ArrayDeque&lt;&gt;();</code></td><td><code>st := []int{}</code></td><td><code>st = []</code></td></tr>
+<tr><td>Push</td><td><code>st.push(v);</code></td><td><code>st = append(st, v)</code></td><td><code>st.append(v)</code></td></tr>
+<tr><td>Pop</td><td><code>st.pop();</code></td><td><code>v := st[len(st)-1]
+st = st[:len(st)-1]</code></td><td><code>st.pop()</code></td></tr>
+<tr><td>Peek / Top</td><td><code>st.peek();</code></td><td><code>st[len(st)-1]</code></td><td><code>st[-1]</code></td></tr>
+<tr><td>Is empty</td><td><code>st.isEmpty()</code></td><td><code>len(st) == 0</code></td><td><code>not st  or  len(st)==0</code></td></tr>
+<tr><td>Size</td><td><code>st.size()</code></td><td><code>len(st)</code></td><td><code>len(st)</code></td></tr>
+</table></div>
+
+<!-- ===================== 7. QUEUE ===================== -->
+<h2>7 · Queue</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Create</td><td><code>Queue&lt;Integer&gt; q =
+  new LinkedList&lt;&gt;();</code></td><td><code>// use container/list
+q := list.New()</code></td><td><code>from collections import deque
+q = deque()</code></td></tr>
+<tr><td>Enqueue</td><td><code>q.offer(v);</code></td><td><code>q.PushBack(v)</code></td><td><code>q.append(v)</code></td></tr>
+<tr><td>Dequeue</td><td><code>q.poll();</code></td><td><code>e := q.Front()
+q.Remove(e)
+v := e.Value.(int)</code></td><td><code>q.popleft()</code></td></tr>
+<tr><td>Peek front</td><td><code>q.peek();</code></td><td><code>q.Front().Value</code></td><td><code>q[0]</code></td></tr>
+<tr><td>Is empty</td><td><code>q.isEmpty()</code></td><td><code>q.Len() == 0</code></td><td><code>not q  or  len(q)==0</code></td></tr>
+<tr><td>Size</td><td><code>q.size()</code></td><td><code>q.Len()</code></td><td><code>len(q)</code></td></tr>
+</table></div>
+
+<!-- ===================== 8. PRIORITY QUEUE / HEAP ===================== -->
+<h2>8 · Priority Queue / Heap</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Min-heap create</td><td><code>PriorityQueue&lt;Integer&gt; pq =
+  new PriorityQueue&lt;&gt;();</code></td><td><code>// implement heap.Interface
+h := &IntHeap{}
+heap.Init(h)</code></td><td><code>import heapq
+h = []</code></td></tr>
+<tr><td>Max-heap create</td><td><code>new PriorityQueue&lt;&gt;(
+  Collections.reverseOrder());</code></td><td><code>// reverse Less() method</code></td><td><code># negate values
+heapq.heappush(h, -v)</code></td></tr>
+<tr><td>Push</td><td><code>pq.offer(v);</code></td><td><code>heap.Push(h, v)</code></td><td><code>heapq.heappush(h, v)</code></td></tr>
+<tr><td>Pop (min/max)</td><td><code>pq.poll();</code></td><td><code>heap.Pop(h).(int)</code></td><td><code>heapq.heappop(h)</code></td></tr>
+<tr><td>Peek</td><td><code>pq.peek();</code></td><td><code>(*h)[0]</code></td><td><code>h[0]</code></td></tr>
+<tr><td>Size</td><td><code>pq.size()</code></td><td><code>h.Len()</code></td><td><code>len(h)</code></td></tr>
+<tr><td>Heapify list</td><td><code>new PriorityQueue&lt;&gt;(list);</code></td><td><code>heap.Init(h)</code></td><td><code>heapq.heapify(lst)</code></td></tr>
+</table></div>
+
+<!-- ===================== 9. LINKED LIST ===================== -->
+<h2>9 · Linked List (Manual Node)</h2>
+<div class="section-card">
+<table><tr><th>Concept</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Node definition</td><td><code>class ListNode {
+  int val;
+  ListNode next;
+  ListNode(int v){val=v;}
+}</code></td><td><code>type ListNode struct {
+  Val  int
+  Next *ListNode
+}</code></td><td><code>class ListNode:
+  def __init__(self, val=0):
+    self.val = val
+    self.next = None</code></td></tr>
+<tr><td>Create node</td><td><code>ListNode n = new ListNode(5);</code></td><td><code>n := &ListNode{Val: 5}</code></td><td><code>n = ListNode(5)</code></td></tr>
+<tr><td>Traverse</td><td><code>while (cur != null) {
+  cur = cur.next;
+}</code></td><td><code>for cur != nil {
+  cur = cur.Next
+}</code></td><td><code>while cur:
+  cur = cur.next</code></td></tr>
+<tr><td>Dummy head</td><td><code>ListNode dummy = new ListNode(0);
+dummy.next = head;</code></td><td><code>dummy := &ListNode{Next: head}</code></td><td><code>dummy = ListNode(0)
+dummy.next = head</code></td></tr>
+</table></div>
+
+<!-- ===================== 10. TREE ===================== -->
+<h2>10 · Binary Tree</h2>
+<div class="section-card">
+<table><tr><th>Concept</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Node definition</td><td><code>class TreeNode {
+  int val;
+  TreeNode left, right;
+  TreeNode(int v){val=v;}
+}</code></td><td><code>type TreeNode struct {
+  Val   int
+  Left  *TreeNode
+  Right *TreeNode
+}</code></td><td><code>class TreeNode:
+  def __init__(self, val=0):
+    self.val = val
+    self.left = None
+    self.right = None</code></td></tr>
+<tr><td>Null check</td><td><code>if (node == null)</code></td><td><code>if node == nil</code></td><td><code>if not node:</code></td></tr>
+<tr><td>BFS (level order)</td><td><code>Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();
+q.offer(root);
+while (!q.isEmpty()) {
+  TreeNode n = q.poll();
+  if(n.left!=null) q.offer(n.left);
+  if(n.right!=null) q.offer(n.right);
+}</code></td><td><code>q := []*TreeNode{root}
+for len(q) &gt; 0 {
+  n := q[0]; q = q[1:]
+  if n.Left != nil {
+    q = append(q, n.Left)
+  }
+  if n.Right != nil {
+    q = append(q, n.Right)
+  }
+}</code></td><td><code>q = deque([root])
+while q:
+  n = q.popleft()
+  if n.left: q.append(n.left)
+  if n.right: q.append(n.right)</code></td></tr>
+</table></div>
+
+<!-- ===================== 11. GRAPH ===================== -->
+<h2>11 · Graph Representation</h2>
+<div class="section-card">
+<table><tr><th>Concept</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Adjacency list</td><td><code>Map&lt;Integer, List&lt;Integer&gt;&gt; g =
+  new HashMap&lt;&gt;();
+g.computeIfAbsent(u,
+  k-&gt;new ArrayList&lt;&gt;()).add(v);</code></td><td><code>g := map[int][]int{}
+g[u] = append(g[u], v)</code></td><td><code>from collections import defaultdict
+g = defaultdict(list)
+g[u].append(v)</code></td></tr>
+<tr><td>Visited set</td><td><code>Set&lt;Integer&gt; vis = new HashSet&lt;&gt;();
+vis.add(node);</code></td><td><code>vis := map[int]bool{}
+vis[node] = true</code></td><td><code>vis = set()
+vis.add(node)</code></td></tr>
+</table></div>
+
+<!-- ===================== 12. SORTED / ORDERED ===================== -->
+<h2>12 · TreeMap / Ordered Structures</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Sorted map</td><td><code>TreeMap&lt;Integer,Integer&gt; tm =
+  new TreeMap&lt;&gt;();</code></td><td><code>// No built-in — use
+// sorted slice / btree lib</code></td><td><code>from sortedcontainers
+  import SortedDict
+sd = SortedDict()</code></td></tr>
+<tr><td>Floor / Ceiling key</td><td><code>tm.floorKey(k)
+tm.ceilingKey(k)</code></td><td><code>// manual binary search</code></td><td><code>sd.bisect_left(k)
+sd.bisect_right(k)</code></td></tr>
+<tr><td>First / Last</td><td><code>tm.firstKey()
+tm.lastKey()</code></td><td><code>// manual</code></td><td><code>sd.peekitem(0)
+sd.peekitem(-1)</code></td></tr>
+</table></div>
+
+<!-- ===================== 13. MATH ===================== -->
+<h2>13 · Math Essentials</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Abs</td><td><code>Math.abs(x)</code></td><td><code>math.Abs(float64(x))</code></td><td><code>abs(x)</code></td></tr>
+<tr><td>Max / Min</td><td><code>Math.max(a,b)
+Math.min(a,b)</code></td><td><code>max(a,b)  // Go 1.21+
+min(a,b)</code></td><td><code>max(a,b)
+min(a,b)</code></td></tr>
+<tr><td>Power</td><td><code>Math.pow(2, 10)</code></td><td><code>math.Pow(2, 10)</code></td><td><code>2 ** 10
+pow(2, 10)</code></td></tr>
+<tr><td>Sqrt</td><td><code>Math.sqrt(x)</code></td><td><code>math.Sqrt(x)</code></td><td><code>math.sqrt(x)</code></td></tr>
+<tr><td>Log</td><td><code>Math.log(x)   // ln
+Math.log10(x)</code></td><td><code>math.Log(x)
+math.Log10(x)</code></td><td><code>math.log(x)
+math.log10(x)</code></td></tr>
+<tr><td>Floor / Ceil</td><td><code>Math.floor(x)
+Math.ceil(x)</code></td><td><code>math.Floor(x)
+math.Ceil(x)</code></td><td><code>math.floor(x)
+math.ceil(x)</code></td></tr>
+<tr><td>Integer division</td><td><code>a / b  // truncates</code></td><td><code>a / b  // truncates</code></td><td><code>a // b  // floors</code></td></tr>
+<tr><td>Modulo</td><td><code>a % b</code></td><td><code>a % b</code></td><td><code>a % b</code></td></tr>
+<tr><td>GCD</td><td><code>// Java — manual or:
+BigInteger.valueOf(a)
+  .gcd(BigInteger.valueOf(b))</code></td><td><code>// manual Euclidean</code></td><td><code>math.gcd(a, b)</code></td></tr>
+<tr><td>Random int</td><td><code>new Random().nextInt(n)</code></td><td><code>rand.Intn(n)</code></td><td><code>random.randint(0,n-1)</code></td></tr>
+</table></div>
+
+<!-- ===================== 14. BIT MANIPULATION ===================== -->
+<h2>14 · Bit Manipulation</h2>
+<div class="section-card">
+<table><tr><th>Operation</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>AND / OR / XOR</td><td><code>a & b   a | b   a ^ b</code></td><td><code>a & b   a | b   a ^ b</code></td><td><code>a & b   a | b   a ^ b</code></td></tr>
+<tr><td>NOT</td><td><code>~a</code></td><td><code>^a</code></td><td><code>~a</code></td></tr>
+<tr><td>Left / Right shift</td><td><code>a &lt;&lt; n    a &gt;&gt; n</code></td><td><code>a &lt;&lt; n    a &gt;&gt; n</code></td><td><code>a &lt;&lt; n    a &gt;&gt; n</code></td></tr>
+<tr><td>Check bit set</td><td><code>(a &gt;&gt; i & 1) == 1</code></td><td><code>a>>i & 1 == 1</code></td><td><code>(a >> i) & 1 == 1</code></td></tr>
+<tr><td>Set bit</td><td><code>a | (1 &lt;&lt; i)</code></td><td><code>a | (1 &lt;&lt; i)</code></td><td><code>a | (1 &lt;&lt; i)</code></td></tr>
+<tr><td>Clear bit</td><td><code>a & ~(1 &lt;&lt; i)</code></td><td><code>a &amp;^ (1 &lt;&lt; i)</code></td><td><code>a & ~(1 &lt;&lt; i)</code></td></tr>
+<tr><td>Count set bits</td><td><code>Integer.bitCount(a)</code></td><td><code>bits.OnesCount(uint(a))</code></td><td><code>bin(a).count('1')</code></td></tr>
+</table></div>
+
+<!-- ===================== 15. COMMON PATTERNS ===================== -->
+<h2>15 · Common DS Coding Patterns</h2>
+<div class="section-card">
+<table><tr><th>Pattern</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Pair / Tuple</td><td><code>int[] pair = {a, b};
+// or Map.Entry</code></td><td><code>type Pair struct {
+  A, B int
+}</code></td><td><code>(a, b)  # tuple</code></td></tr>
+<tr><td>Return multiple</td><td><code>// return int[] or class</code></td><td><code>func f() (int, int) {
+  return a, b
+}</code></td><td><code>return a, b</code></td></tr>
+<tr><td>Lambda / Closure</td><td><code>(a, b) -&gt; a + b</code></td><td><code>func(a, b int) int {
+  return a + b
+}</code></td><td><code>lambda a, b: a + b</code></td></tr>
+<tr><td>For loop</td><td><code>for (int i=0; i&lt;n; i++)</code></td><td><code>for i := 0; i &lt; n; i++</code></td><td><code>for i in range(n):</code></td></tr>
+<tr><td>While loop</td><td><code>while (cond) { }</code></td><td><code>for cond { }</code></td><td><code>while cond:</code></td></tr>
+<tr><td>Ternary</td><td><code>x = (a &gt; b) ? a : b;</code></td><td><code>// Go has no ternary
+// use if/else</code></td><td><code>x = a if a &gt; b else b</code></td></tr>
+<tr><td>Print debug</td><td><code>System.out.println(x);</code></td><td><code>fmt.Println(x)</code></td><td><code>print(x)</code></td></tr>
+</table></div>
+
+<!-- ===================== 16. KEY IMPORTS ===================== -->
+<h2>16 · Key Imports / Packages</h2>
+<div class="section-card">
+<table><tr><th>Category</th><th><span class="lang-badge java-b">Java</span></th><th><span class="lang-badge go-b">Go</span></th><th><span class="lang-badge py-b">Python</span></th></tr>
+<tr><td>Collections</td><td><code>import java.util.*;</code></td><td><code>"sort"
+"container/list"
+"container/heap"</code></td><td><code>from collections import (
+  deque, defaultdict,
+  Counter, OrderedDict
+)</code></td></tr>
+<tr><td>Math</td><td><code>import java.lang.Math;</code></td><td><code>"math"
+"math/bits"</code></td><td><code>import math</code></td></tr>
+<tr><td>Strings</td><td><code>// built-in</code></td><td><code>"strings"
+"strconv"
+"unicode"</code></td><td><code># built-in</code></td></tr>
+<tr><td>Sorting extras</td><td><code>import java.util.Arrays;
+import java.util.Collections;</code></td><td><code>"sort"
+"slices" // Go 1.21+</code></td><td><code>import bisect
+from functools import cmp_to_key</code></td></tr>
+</table></div>
+
+<div class="note">💡 <strong>Tip:</strong> Print this page in <strong>Landscape</strong> mode (Ctrl+P → Layout → Landscape) for best results. All styles auto-adjust for print.</div>
+
+<p style="text-align:center;color:var(--dim);font-size:.75rem;margin-top:24px">Generated for revision · Java · Go · Python · March 2026</p>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Linked List | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>🔗 Linked List Patterns</h1>
+<p class="subtitle">Patterns 9–10 · Pointer manipulation mastery</p>
+
+<!-- ═══════════════════════ PATTERN 9: FAST & SLOW POINTERS ═══════════════════════ -->
+<div class="pattern" id="fast-slow">
+<div class="pattern-header"><div class="pattern-num">9</div><div class="pattern-title">Fast & Slow Pointers (Floyd's)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Two runners on a track — one runs twice as fast. If there's a loop, the fast runner eventually laps the slow one (they meet!). If no loop, fast runner reaches the end. Also: when fast is at the end, slow is at the MIDDLE — perfect for finding the midpoint!</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">cycle detection</span><span class="keyword">find middle</span><span class="keyword">palindrome linked list</span><span class="keyword">happy number</span><span class="keyword">kth from end</span><span class="keyword">Floyd's algorithm</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Detect cycle in linked list</p>
+<div class="step-box"><div class="step-title">Step 1 — Two pointers: slow +1, fast +2</div><pre>
+  1 → 2 → 3 → 4 → 5 → 3 (cycle back to 3)
+  S                          slow = 1
+  F                          fast = 1
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Move until they meet</div><pre>
+  Step 1: slow=2, fast=3
+  Step 2: slow=3, fast=5
+  Step 3: slow=4, fast=4   <span class="result">✅ They meet! Cycle exists!</span>
+  
+  <span class="highlight">For finding middle: when fast reaches end, slow is at middle</span>
+  1 → 2 → 3 → 4 → 5
+           S         F(end)   → slow = 3 = middle!
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Cycle Detection (LC #141) — O(n) time, O(1) space</span>
+public boolean hasCycle(ListNode head) {
+    ListNode slow = head, fast = head;
+    while (fast != null &amp;&amp; fast.next != null) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (slow == fast) return true;   <span class="comment">// they met → cycle!</span>
+    }
+    return false;                         <span class="comment">// fast reached end → no cycle</span>
+}
+
+<span class="comment">// Find Middle (LC #876)</span>
+public ListNode middleNode(ListNode head) {
+    ListNode slow = head, fast = head;
+    while (fast != null &amp;&amp; fast.next != null) {
+        slow = slow.next; fast = fast.next.next;
+    }
+    return slow;  <span class="comment">// slow is at middle when fast reaches end</span>
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func hasCycle(head *ListNode) bool {
+    slow, fast := head, head
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next; fast = fast.Next.Next
+        if slow == fast { return true }
+    }
+    return false
+}
+func middleNode(head *ListNode) *ListNode {
+    slow, fast := head, head
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next; fast = fast.Next.Next
+    }
+    return slow
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next; fast = fast.next.next
+        if slow == fast: return True
+    return False
+
+def middle_node(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next; fast = fast.next.next
+    return slow
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>Empty list or single node → no cycle (fast is null immediately).</li>
+<li>For <strong>finding cycle start</strong>: after slow==fast, reset one to head and move both +1 — they meet at cycle start.</li>
+<li>Even vs odd length: for middle, decide if you want left-middle or right-middle by adjusting the while condition.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Core fast/slow<div class="tier-desc">Cycle detection and middle finding</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>141</td><td><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank">Linked List Cycle</a></td><td>Floyd's cycle detection — do they meet?</td></tr>
+<tr><td>876</td><td><a href="https://leetcode.com/problems/middle-of-the-linked-list/" target="_blank">Middle of Linked List</a></td><td>When fast=end, slow=middle</td></tr>
+<tr><td>202</td><td><a href="https://leetcode.com/problems/happy-number/" target="_blank">Happy Number</a></td><td>Cycle detection on number sequence</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Combining techniques<div class="tier-desc">Find middle + reverse + compare</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>142</td><td><a href="https://leetcode.com/problems/linked-list-cycle-ii/" target="_blank">Linked List Cycle II</a></td><td>Find WHERE the cycle starts</td></tr>
+<tr><td>234</td><td><a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank">Palindrome Linked List</a></td><td>Find middle → reverse second half → compare</td></tr>
+<tr><td>19</td><td><a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank">Remove Nth from End</a></td><td>Fast pointer N ahead of slow → one pass</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Combined patterns<div class="tier-desc">Multi-step linked list manipulations</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>143</td><td><a href="https://leetcode.com/problems/reorder-list/" target="_blank">Reorder List</a></td><td>Find middle + reverse + merge interleaved</td></tr>
+<tr><td>457</td><td><a href="https://leetcode.com/problems/circular-array-loop/" target="_blank">Circular Array Loop</a></td><td>Floyd's on array — tricky edge cases</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 10: IN-PLACE REVERSAL ═══════════════════════ -->
+<div class="pattern" id="linked-list-reversal">
+<div class="pattern-header"><div class="pattern-num">10</div><div class="pattern-title">In-Place Linked List Reversal</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">A conga line doing an about-face. Each person turns around and grabs the shoulder of the person who was BEHIND them. You process one person at a time: save next, flip the arrow, move forward. Three pointers: prev, curr, next.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">reverse linked list</span><span class="keyword">reverse between positions</span><span class="keyword">reverse in groups of K</span><span class="keyword">swap nodes in pairs</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Reverse 1 → 2 → 3 → null</div><pre>
+  prev=null, curr=1
+  
+  Step 1: next=2, 1→null, prev=1, curr=2
+  <span class="comment">null ← 1    2 → 3 → null</span>
+  
+  Step 2: next=3, 2→1, prev=2, curr=3
+  <span class="comment">null ← 1 ← 2    3 → null</span>
+  
+  Step 3: next=null, 3→2, prev=3, curr=null → <span class="result">DONE!</span>
+  <span class="result">null ← 1 ← 2 ← 3  →  3 → 2 → 1 → null</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Reverse Linked List (LC #206) — O(n) time, O(1) space</span>
+public ListNode reverseList(ListNode head) {
+    ListNode prev = null, curr = head;
+    while (curr != null) {
+        ListNode next = curr.next;   <span class="comment">// save next</span>
+        curr.next = prev;            <span class="comment">// flip arrow</span>
+        prev = curr;                 <span class="comment">// advance prev</span>
+        curr = next;                 <span class="comment">// advance curr</span>
+    }
+    return prev;                     <span class="comment">// new head</span>
+}
+
+<span class="comment">// Reverse Between m and n (LC #92)</span>
+public ListNode reverseBetween(ListNode head, int m, int n) {
+    ListNode dummy = new ListNode(0, head);
+    ListNode pre = dummy;
+    for (int i = 1; i &lt; m; i++) pre = pre.next;
+    ListNode curr = pre.next;
+    for (int i = 0; i &lt; n - m; i++) {
+        ListNode next = curr.next;
+        curr.next = next.next;
+        next.next = pre.next;
+        pre.next = next;
+    }
+    return dummy.next;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func reverseList(head *ListNode) *ListNode {
+    var prev *ListNode
+    curr := head
+    for curr != nil {
+        next := curr.Next
+        curr.Next = prev
+        prev = curr; curr = next
+    }
+    return prev
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def reverse_list(head):
+    prev, curr = None, head
+    while curr:
+        nxt = curr.next
+        curr.next = prev
+        prev = curr
+        curr = nxt
+    return prev
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>Use a <strong>dummy node</strong> when the head might change (reversal starting from position 1).</li>
+<li>Reverse in K-group: count K nodes exist first, then reverse; if fewer than K, leave as-is.</li>
+<li>Draw it out on paper! Reversal bugs are almost always pointer-order mistakes.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Basic reversal<div class="tier-desc">prev/curr/next three-pointer dance</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>206</td><td><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank">Reverse Linked List</a></td><td>Core reversal — must know cold</td></tr>
+<tr><td>21</td><td><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank">Merge Two Sorted Lists</a></td><td>Not reversal but essential linked list skill</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Partial reversal<div class="tier-desc">Reverse between positions or swap pairs</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>92</td><td><a href="https://leetcode.com/problems/reverse-linked-list-ii/" target="_blank">Reverse Between m and n</a></td><td>Reverse a sublist — track connection points</td></tr>
+<tr><td>24</td><td><a href="https://leetcode.com/problems/swap-nodes-in-pairs/" target="_blank">Swap Nodes in Pairs</a></td><td>Pairwise reversal — recursive or iterative</td></tr>
+<tr><td>328</td><td><a href="https://leetcode.com/problems/odd-even-linked-list/" target="_blank">Odd Even Linked List</a></td><td>Rearrange by position — two-pointer split</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">��</span> Interview-Ready — K-group reversal<div class="tier-desc">The ultimate linked list manipulation</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>25</td><td><a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank">Reverse Nodes in K-Group</a></td><td>Count K, reverse, connect, repeat — HARD</td></tr>
+<tr><td>2</td><td><a href="https://leetcode.com/problems/add-two-numbers/" target="_blank">Add Two Numbers</a></td><td>Simulate addition with carry — linked list math</td></tr>
+<tr><td>138</td><td><a href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank">Copy List with Random Pointer</a></td><td>Deep copy with random pointers — HashMap or interleave</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

@@ -164,13 +164,32 @@ When you replicate data across nodes, you must choose how reads see writes:
 
 ### Weak Consistency
 
-After a write, reads **may or may not** see it. A best-effort approach.
+After a write, reads **may or may not** see it. A best-effort approach. There is **no guarantee** a read will ever reflect a previous write.
 
 | Aspect | Detail |
 |---|---|
 | **Use cases** | VoIP, video chat, real-time multiplayer games |
 | **Example** | On a phone call, if you lose reception for 3 seconds, you don't hear those 3 seconds when you reconnect |
 | **Systems** | Memcached |
+
+#### Why Memcached Is Weak (Not Eventual)
+
+Memcached is a distributed in-memory cache — it sits in front of a database to speed up reads. It provides weak consistency because:
+
+1. **No replication between nodes.** Memcached uses client-side consistent hashing — each key lives on exactly one server. If a node dies, that data is simply **gone**. There is nothing to "eventually converge."
+2. **No convergence mechanism.** Unlike eventual-consistency systems (Cassandra, DynamoDB) that use gossip protocols, anti-entropy, and read-repair to converge replicas, Memcached has **no such mechanism**. A stale cache entry stays stale until TTL expiry or explicit invalidation.
+3. **LRU eviction.** When memory is full, Memcached silently drops items via LRU. A write may succeed, but a subsequent read may find the item already evicted.
+4. **Race conditions are inherent:**
+
+```
+Thread A: reads DB, gets old value "Bob"
+Thread B: writes "Alice" to DB, deletes cache
+Thread A: writes stale "Bob" back into cache  ← STALE!
+```
+
+Now the cache says `"Bob"` and the DB says `"Alice"` — and nothing will auto-fix this.
+
+> **Key insight**: Eventual consistency requires replication + convergence. Memcached has neither — it's a cache, not a replicated datastore.
 
 ### Eventual Consistency
 
@@ -182,6 +201,33 @@ After a write, reads will **eventually** see it (typically within milliseconds).
 | **Example** | After posting a tweet, your followers see it within a few seconds, not instantly |
 | **Systems** | DNS, email, DynamoDB, Cassandra |
 
+#### Why These Systems Are Eventual (Not Weak)
+
+The critical difference from weak consistency: **these systems guarantee convergence** — all replicas will reach the same state given enough time, even without new writes.
+
+| System | How It Converges |
+|---|---|
+| **DNS** | TTL-based propagation — nameservers refresh records after expiry, guaranteed to converge globally |
+| **Cassandra** | Gossip protocol + read-repair + anti-entropy (Merkle tree) — replicas detect and resolve inconsistencies automatically |
+| **DynamoDB** | Vector clocks / last-writer-wins for conflict resolution — async replication across partitions with built-in convergence |
+
+**What "eventually" means in practice:**
+- DNS: seconds to hours (depends on TTL)
+- Cassandra / DynamoDB: milliseconds to low seconds
+
+#### The Inconsistency Window
+
+```
+Time 0ms:  Client A writes X=5 to Node 1
+Time 1ms:  Client B reads X from Node 2  → gets old value (stale!)
+Time 50ms: Async replication delivers X=5 to Node 2
+Time 51ms: Client B reads X from Node 2  → gets 5 ✓
+```
+
+During the window (0–50ms), reads from other nodes may return stale data. But unlike weak consistency, **convergence is guaranteed** — the system will eventually fix itself.
+
+> **Key insight**: Eventual ≠ "maybe." It means "guaranteed, but not immediately." The system has built-in mechanisms (gossip, anti-entropy, read-repair) to ensure all replicas converge.
+
 ### Strong Consistency
 
 After a write, reads **will** see it immediately. Data is replicated **synchronously**.
@@ -191,6 +237,34 @@ After a write, reads **will** see it immediately. Data is replicated **synchrono
 | **Use cases** | Systems that need transactions and guaranteed correctness |
 | **Example** | After a bank transfer completes, the balance is immediately correct everywhere |
 | **Systems** | RDBMS, Zookeeper, Etcd |
+
+#### Why These Systems Are Strong
+
+Strong consistency guarantees **linearizability** — every operation appears to happen atomically at a single point in time, and all clients see the same ordering.
+
+| System | How It Achieves Strong Consistency |
+|---|---|
+| **RDBMS** (PostgreSQL, MySQL) | ACID transactions + write-ahead log (WAL). Synchronous replication mode ensures replicas confirm writes before the client gets a response |
+| **Zookeeper** | ZAB (Zookeeper Atomic Broadcast) consensus protocol — writes go through a leader, and a majority of followers must acknowledge before the write is committed |
+| **Etcd** | Raft consensus protocol — similar to ZAB, requires majority quorum to commit writes. Used as the backbone of Kubernetes |
+
+#### The Cost of Strong Consistency
+
+```
+Client writes X=5
+  → Leader receives write
+  → Leader replicates to Follower A  (wait...)
+  → Leader replicates to Follower B  (wait...)
+  → Majority acknowledged → commit
+  → Respond to client: "success"
+```
+
+The client is **blocked** until a majority of nodes confirm. This means:
+- **Higher latency**: every write must wait for replication
+- **Lower availability**: if a majority of nodes are down, writes are rejected rather than accepted with stale data
+- **The CAP trade-off**: these are CP systems — they sacrifice availability for correctness during partitions
+
+> **Key insight**: Strong consistency is expensive. Use it only where **correctness is non-negotiable** — bank transfers, distributed locks, leader election, configuration management.
 
 ### Choosing a Consistency Level
 

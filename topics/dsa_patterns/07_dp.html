@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Dynamic Programming | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>🧮 Dynamic Programming Patterns</h1>
+<p class="subtitle">Patterns 21–30 · Break big problems into overlapping subproblems</p>
+
+<div class="step-box" style="border-left:4px solid var(--accent3);">
+<div class="step-title">🔑 The DP Mindset (applies to ALL patterns below):</div>
+<pre>
+1. Can I define the answer for a BIG input in terms of SMALLER inputs? → <span class="highlight">Recurrence relation</span>
+2. Do I solve the same subproblem multiple times? → <span class="highlight">Overlapping subproblems</span> → Use DP!
+3. Approach: Recursion → Add memoization → Convert to bottom-up table → Optimize space
+
+<span class="result">If you can write the recurrence, you can write the DP. The recurrence IS the solution.</span>
+</pre></div>
+
+<!-- ═══════════════════════ PATTERN 21: 0/1 KNAPSACK ═══════════════════════ -->
+<div class="pattern" id="knapsack-01">
+<div class="pattern-header"><div class="pattern-num">21</div><div class="pattern-title">0/1 Knapsack</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Packing a backpack with a weight limit. Each item can either go IN or NOT (0 or 1 — no splitting!). For each item you decide: "Is my total value higher WITH or WITHOUT this item?" Build up from empty backpack to full capacity.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">subset sum</span><span class="keyword">partition equal</span><span class="keyword">target sum</span><span class="keyword">include/exclude each item</span><span class="keyword">weight/capacity constraint</span><span class="keyword">maximize/minimize with constraint</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Partition Equal Subset Sum — can we split [1,5,11,5] into two equal subsets?</p>
+<div class="step-box"><div class="step-title">Step 1 — Transform: sum=22 → can we find subset summing to 11?</div><pre>
+  This is 0/1 knapsack with target capacity = 11
+  Items: [1, 5, 11, 5]  →  Can we pick items summing to 11?
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — DP table: dp[j] = "can we make sum j?"</div><pre>
+  Start:   dp = [T, F, F, F, F, F, F, F, F, F, F, F]  (index 0-11)
+                 0  1  2  3  4  5  6  7  8  9  10  11
+
+  After item=1: dp[1]=T  →  [T, <span class="highlight">T</span>, F, F, F, F, F, F, F, F, F, F]
+  After item=5: dp[5]=T, dp[6]=T
+  After item=11: dp[11]=<span class="result">T</span>!  → <span class="result">✅ Yes, we can partition!</span>
+</pre></div>
+<div class="step-box"><div class="step-title">💡 Key Insight — why iterate BACKWARDS?</div><pre>
+  for j = target DOWN TO num:      <span class="comment">// not forward!</span>
+      dp[j] = dp[j] || dp[j - num]
+  
+  <span class="highlight">Backwards prevents using same item twice.</span>
+  If we went forward, dp[j-num] might already include current item.
+  Forward iteration = Unbounded Knapsack (Pattern 22).
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Partition Equal Subset Sum (LC #416)</span>
+<span class="comment">// Time: O(n×target)  Space: O(target)</span>
+public boolean canPartition(int[] nums) {
+    int sum = 0;
+    for (int n : nums) sum += n;
+    if (sum % 2 != 0) return false;       <span class="comment">// odd sum = impossible</span>
+    int target = sum / 2;
+    boolean[] dp = new boolean[target + 1];
+    dp[0] = true;                          <span class="comment">// sum 0 always possible</span>
+    for (int num : nums)
+        for (int j = target; j &gt;= num; j--)  <span class="comment">// BACKWARDS!</span>
+            dp[j] = dp[j] || dp[j - num];
+    return dp[target];
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func canPartition(nums []int) bool {
+    sum := 0
+    for _, n := range nums { sum += n }
+    if sum%2 != 0 { return false }
+    target := sum / 2
+    dp := make([]bool, target+1)
+    dp[0] = true
+    for _, num := range nums {
+        for j := target; j >= num; j-- {  // BACKWARDS!
+            dp[j] = dp[j] || dp[j-num]
+        }
+    }
+    return dp[target]
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def can_partition(nums):
+    total = sum(nums)
+    if total % 2: return False
+    target = total // 2
+    dp = [False] * (target + 1)
+    dp[0] = True
+    for num in nums:
+        for j in range(target, num - 1, -1):  # BACKWARDS!
+            dp[j] = dp[j] or dp[j - num]
+    return dp[target]
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Iterating <strong>forward</strong> instead of backward allows reusing items (that's Unbounded Knapsack!).</li>
+<li>Odd sum → immediately return false for partition problems.</li>
+<li>Space optimization: 2D dp[i][j] → 1D dp[j] by iterating backwards over capacity.</li>
+<li>Target Sum (LC #494): transform +/- into two subsets: P - N = target, P + N = sum → P = (sum+target)/2.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(n × target)</div><div class="explain">n items × target capacity. Pseudo-polynomial.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(target)</div><div class="explain">1D DP array. Can be O(n×target) without optimization.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — "Include or exclude" decision<div class="tier-desc">Get comfortable with the backwards loop</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>416</td><td><a href="https://leetcode.com/problems/partition-equal-subset-sum/" target="_blank">Partition Equal Subset Sum</a></td><td>Core 0/1 knapsack — can we make sum/2?</td></tr>
+<tr><td>494</td><td><a href="https://leetcode.com/problems/target-sum/" target="_blank">Target Sum</a></td><td>+/- each num → transform to subset sum</td></tr>
+<tr><td>2915</td><td><a href="https://leetcode.com/problems/length-of-the-longest-subsequence-that-sums-to-target/" target="_blank">Longest Subseq Sum to Target</a></td><td>Knapsack tracking length instead of boolean</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Multiple constraints<div class="tier-desc">2D knapsack and counting variants</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>474</td><td><a href="https://leetcode.com/problems/ones-and-zeroes/" target="_blank">Ones and Zeroes</a></td><td>2D knapsack — two constraints (0s and 1s)</td></tr>
+<tr><td>1049</td><td><a href="https://leetcode.com/problems/last-stone-weight-ii/" target="_blank">Last Stone Weight II</a></td><td>Reduce to partition — minimize remainder</td></tr>
+<tr><td>698</td><td><a href="https://leetcode.com/problems/partition-to-k-equal-sum-subsets/" target="_blank">Partition to K Equal Sum Subsets</a></td><td>Backtracking + subset sum — extends the concept</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Knapsack variations you'll see in interviews</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>956</td><td><a href="https://leetcode.com/problems/tallest-billboard/" target="_blank">Tallest Billboard</a></td><td>Hard knapsack — track difference of two subsets</td></tr>
+<tr><td>879</td><td><a href="https://leetcode.com/problems/profitable-schemes/" target="_blank">Profitable Schemes</a></td><td>3D knapsack — profit + people constraints</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 22: UNBOUNDED KNAPSACK ═══════════════════════ -->
+<div class="pattern" id="unbounded-knapsack">
+<div class="pattern-header"><div class="pattern-num">22</div><div class="pattern-title">Unbounded Knapsack</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">A vending machine with unlimited supply of each item. You can pick the same item as many times as you want! "What's the minimum number of coins to make exact change?" or "How many ways can I combine coins to reach a target?"</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">coin change</span><span class="keyword">unlimited supply</span><span class="keyword">rod cutting</span><span class="keyword">combinations/permutations to reach target</span><span class="keyword">items can be reused</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Coin Change — minimum coins to make amount=11 with coins [1,5,6]</p>
+<div class="step-box"><div class="step-title">Key difference from 0/1: iterate FORWARD</div><pre>
+  dp[j] = min coins to make amount j
+  dp[0] = 0 (0 coins for amount 0)
+  
+  For each coin, iterate <span class="highlight">FORWARD</span> (allows reuse!):
+  
+  dp:  [0, 1, 2, 3, 4, <span class="highlight">1</span>, <span class="highlight">1</span>, 2, 3, 4, <span class="highlight">2</span>, <span class="highlight">2</span>]
+       0  1  2  3  4  5  6  7  8  9  10  11
+  
+  dp[11] = <span class="result">2 (coins: 5+6)  ✅</span>
+  
+  <span class="highlight">Forward loop = item can be reused = Unbounded</span>
+  <span class="highlight">Backward loop = item used once = 0/1 Knapsack</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Coin Change (LC #322) — min coins to make amount</span>
+<span class="comment">// Time: O(n × amount)  Space: O(amount)</span>
+public int coinChange(int[] coins, int amount) {
+    int[] dp = new int[amount + 1];
+    Arrays.fill(dp, amount + 1);  <span class="comment">// "infinity"</span>
+    dp[0] = 0;
+    for (int coin : coins)
+        for (int j = coin; j &lt;= amount; j++)  <span class="comment">// FORWARD! (reuse allowed)</span>
+            dp[j] = Math.min(dp[j], dp[j - coin] + 1);
+    return dp[amount] &gt; amount ? -1 : dp[amount];
+}
+
+<span class="comment">// Coin Change II (LC #518) — count combinations</span>
+public int change(int amount, int[] coins) {
+    int[] dp = new int[amount + 1];
+    dp[0] = 1;                    <span class="comment">// one way to make 0: use nothing</span>
+    for (int coin : coins)        <span class="comment">// coins OUTER → combinations (not permutations)</span>
+        for (int j = coin; j &lt;= amount; j++)
+            dp[j] += dp[j - coin];
+    return dp[amount];
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func coinChange(coins []int, amount int) int {
+    dp := make([]int, amount+1)
+    for i := range dp { dp[i] = amount + 1 }
+    dp[0] = 0
+    for _, coin := range coins {
+        for j := coin; j <= amount; j++ {
+            dp[j] = min(dp[j], dp[j-coin]+1)
+        }
+    }
+    if dp[amount] > amount { return -1 }
+    return dp[amount]
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+    for coin in coins:
+        for j in range(coin, amount + 1):  # FORWARD!
+            dp[j] = min(dp[j], dp[j - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+def change(amount, coins):  # count combinations
+    dp = [0] * (amount + 1)
+    dp[0] = 1
+    for coin in coins:      # coins outer = combinations
+        for j in range(coin, amount + 1):
+            dp[j] += dp[j - coin]
+    return dp[amount]
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li><strong>Combinations vs Permutations:</strong> coins loop OUTER → combinations (1+2 and 2+1 count as same). Amount loop OUTER → permutations (they count differently).</li>
+<li>Coin Change: init dp with <code>amount+1</code> (not MAX_VALUE!) to avoid overflow when adding +1.</li>
+<li>Don't confuse forward/backward: Forward=unbounded, Backward=0/1.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(n × amount)</div><div class="explain">n coins × amount capacity.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(amount)</div><div class="explain">1D DP array of size amount+1.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Coins = unlimited supply items<div class="tier-desc">Master the forward loop pattern</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>322</td><td><a href="https://leetcode.com/problems/coin-change/" target="_blank">Coin Change</a></td><td>Min coins — iterate FORWARD (unlimited reuse)</td></tr>
+<tr><td>518</td><td><a href="https://leetcode.com/problems/coin-change-ii/" target="_blank">Coin Change II</a></td><td>Count combinations — coins outer loop</td></tr>
+<tr><td>279</td><td><a href="https://leetcode.com/problems/perfect-squares/" target="_blank">Perfect Squares</a></td><td>Min squares to sum to N — coins are 1,4,9,16...</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Permutations and word break<div class="tier-desc">Loop order matters!</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>377</td><td><a href="https://leetcode.com/problems/combination-sum-iv/" target="_blank">Combination Sum IV</a></td><td>Count permutations (amount outer, nums inner)</td></tr>
+<tr><td>139</td><td><a href="https://leetcode.com/problems/word-break/" target="_blank">Word Break</a></td><td>Words as "coins" — can we build the string?</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Complex unbounded variants</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>983</td><td><a href="https://leetcode.com/problems/minimum-cost-for-tickets/" target="_blank">Minimum Cost for Tickets</a></td><td>1/7/30 day passes — unbounded with variable jumps</td></tr>
+<tr><td>1449</td><td><a href="https://leetcode.com/problems/form-largest-integer-with-digits-that-add-up-to-target/" target="_blank">Form Largest Integer</a></td><td>Unbounded knapsack maximizing "value" (digits)</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 23: FIBONACCI-STYLE ═══════════════════════ -->
+<div class="pattern" id="fib-style">
+<div class="pattern-header"><div class="pattern-num">23</div><div class="pattern-title">Fibonacci-Style DP</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Climbing stairs — from any step, you can go up 1 or 2 steps. How many ways to reach the top? It's Fibonacci! ways(n) = ways(n-1) + ways(n-2). Many problems hide this simple recurrence: "current depends on previous 1-2 results."</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">climbing stairs</span><span class="keyword">house robber</span><span class="keyword">decode ways</span><span class="keyword">f(n) = f(n-1) + f(n-2)</span><span class="keyword">min cost</span><span class="keyword">skip adjacent</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> House Robber — max money without robbing adjacent houses. [2, 7, 9, 3, 1]</p>
+<div class="step-box"><div class="step-title">Recurrence: dp[i] = max(dp[i-1], dp[i-2] + nums[i])</div><pre>
+  "Skip this house" vs "Rob this house + best from 2 back"
+  
+  dp[0] = 2                          (rob house 0)
+  dp[1] = max(2, 7) = <span class="highlight">7</span>             (rob house 1)
+  dp[2] = max(7, 2+9) = <span class="highlight">11</span>          (rob houses 0,2)
+  dp[3] = max(11, 7+3) = <span class="highlight">11</span>         (skip house 3)
+  dp[4] = max(11, 11+1) = <span class="highlight">12</span>        (rob houses 0,2,4)
+  
+  <span class="result">✅ Answer: 12  (rob houses 0, 2, 4 = 2+9+1)</span>
+  
+  <span class="highlight">Space optimization: only need dp[i-1] and dp[i-2] → O(1) space!</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// House Robber (LC #198) — O(n) time, O(1) space</span>
+public int rob(int[] nums) {
+    int prev2 = 0, prev1 = 0;
+    for (int num : nums) {
+        int curr = Math.max(prev1, prev2 + num);
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return prev1;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func rob(nums []int) int {
+    prev2, prev1 := 0, 0
+    for _, num := range nums {
+        curr := max(prev1, prev2+num)
+        prev2 = prev1; prev1 = curr
+    }
+    return prev1
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def rob(nums):
+    prev2, prev1 = 0, 0
+    for num in nums:
+        prev2, prev1 = prev1, max(prev1, prev2 + num)
+    return prev1
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>Single element: return nums[0]. Two elements: return max(nums[0], nums[1]).</li>
+<li>House Robber II (circular): run twice — [0..n-2] and [1..n-1], take max.</li>
+<li>Space optimization: only keep 2 previous values instead of full array.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Pure Fibonacci pattern<div class="tier-desc">f(n) = f(n-1) + f(n-2)</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>509</td><td><a href="https://leetcode.com/problems/fibonacci-number/" target="_blank">Fibonacci Number</a></td><td>Pure template — the foundation</td></tr>
+<tr><td>70</td><td><a href="https://leetcode.com/problems/climbing-stairs/" target="_blank">Climbing Stairs</a></td><td>Fibonacci in disguise — 1 or 2 steps</td></tr>
+<tr><td>746</td><td><a href="https://leetcode.com/problems/min-cost-climbing-stairs/" target="_blank">Min Cost Climbing Stairs</a></td><td>Add cost dimension to climbing</td></tr>
+<tr><td>1137</td><td><a href="https://leetcode.com/problems/n-th-tribonacci-number/" target="_blank">N-th Tribonacci Number</a></td><td>f(n) = f(n-1)+f(n-2)+f(n-3)</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Skip-adjacent logic<div class="tier-desc">Rob/skip decisions</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>198</td><td><a href="https://leetcode.com/problems/house-robber/" target="_blank">House Robber</a></td><td>dp[i] = max(skip, take + dp[i-2])</td></tr>
+<tr><td>213</td><td><a href="https://leetcode.com/problems/house-robber-ii/" target="_blank">House Robber II</a></td><td>Circular array — run twice, take max</td></tr>
+<tr><td>740</td><td><a href="https://leetcode.com/problems/delete-and-earn/" target="_blank">Delete and Earn</a></td><td>Transform to House Robber on frequency array</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Conditional Fibonacci<div class="tier-desc">Fibonacci with conditions and constraints</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>91</td><td><a href="https://leetcode.com/problems/decode-ways/" target="_blank">Decode Ways</a></td><td>Fibonacci but only valid 1-26 decodings count</td></tr>
+<tr><td>790</td><td><a href="https://leetcode.com/problems/domino-and-tromino-tiling/" target="_blank">Domino and Tromino Tiling</a></td><td>Fibonacci variant with more states</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Tree DP<div class="tier-desc">Fibonacci logic on tree structure</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>337</td><td><a href="https://leetcode.com/problems/house-robber-iii/" target="_blank">House Robber III (Tree)</a></td><td>DFS returns [rob, not_rob] pair — tree DP</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 24: LCS ═══════════════════════ -->
+<div class="pattern" id="lcs">
+<div class="pattern-header"><div class="pattern-num">24</div><div class="pattern-title">Longest Common Subsequence (LCS)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Imagine two playlists. You want the longest sequence of songs that appear in BOTH playlists in the SAME ORDER (but not necessarily next to each other). Compare each pair of songs: if they match → extend previous best. If not → take the better of skipping either song.</div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">LCS of "abcde" and "ace"</div><pre>
+       ""  a  c  e
+  ""  [ 0  0  0  0 ]
+   a  [ 0  <span class="highlight">1</span>  1  1 ]    a==a → diagonal+1 = 1
+   b  [ 0  1  1  1 ]    b!=a,c,e → max(left,top)
+   c  [ 0  1  <span class="highlight">2</span>  2 ]    c==c → diagonal+1 = 2
+   d  [ 0  1  2  2 ]
+   e  [ 0  1  2  <span class="result">3</span> ]    e==e → diagonal+1 = 3
+   
+  <span class="result">✅ LCS = "ace", length = 3</span>
+  
+  <span class="highlight">Rule: match → dp[i][j] = dp[i-1][j-1] + 1</span>
+  <span class="highlight">No match → dp[i][j] = max(dp[i-1][j], dp[i][j-1])</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// LCS (LC #1143) — Time: O(m×n)  Space: O(m×n)</span>
+public int longestCommonSubsequence(String t1, String t2) {
+    int m = t1.length(), n = t2.length();
+    int[][] dp = new int[m+1][n+1];
+    for (int i = 1; i &lt;= m; i++)
+        for (int j = 1; j &lt;= n; j++)
+            dp[i][j] = t1.charAt(i-1) == t2.charAt(j-1)
+                ? dp[i-1][j-1] + 1
+                : Math.max(dp[i-1][j], dp[i][j-1]);
+    return dp[m][n];
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func longestCommonSubsequence(t1, t2 string) int {
+    m, n := len(t1), len(t2)
+    dp := make([][]int, m+1)
+    for i := range dp { dp[i] = make([]int, n+1) }
+    for i := 1; i <= m; i++ {
+        for j := 1; j <= n; j++ {
+            if t1[i-1] == t2[j-1] { dp[i][j] = dp[i-1][j-1] + 1
+            } else { dp[i][j] = max(dp[i-1][j], dp[i][j-1]) }
+        }
+    }
+    return dp[m][n]
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def longest_common_subsequence(t1, t2):
+    m, n = len(t1), len(t2)
+    dp = [[0]*(n+1) for _ in range(m+1)]
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if t1[i-1] == t2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — The 2D table pattern<div class="tier-desc">Match/no-match → diagonal or max(left,top)</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1143</td><td><a href="https://leetcode.com/problems/longest-common-subsequence/" target="_blank">Longest Common Subsequence</a></td><td>Core 2D DP — the pattern itself</td></tr>
+<tr><td>583</td><td><a href="https://leetcode.com/problems/delete-operation-for-two-strings/" target="_blank">Delete Operation for Two Strings</a></td><td>Answer = m+n-2*LCS — simple transform</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — LCS variants<div class="tier-desc">Add operations beyond match/skip</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>712</td><td><a href="https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/" target="_blank">Minimum ASCII Delete Sum</a></td><td>LCS variant with costs instead of lengths</td></tr>
+<tr><td>97</td><td><a href="https://leetcode.com/problems/interleaving-string/" target="_blank">Interleaving String</a></td><td>Can s3 be formed by interleaving s1 and s2?</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Transform to LCS<div class="tier-desc">Many string problems reduce to LCS</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>72</td><td><a href="https://leetcode.com/problems/edit-distance/" target="_blank">Edit Distance</a></td><td>LCS variant with insert/delete/replace — CLASSIC</td></tr>
+<tr><td>1092</td><td><a href="https://leetcode.com/problems/shortest-common-supersequence/" target="_blank">Shortest Common Supersequence</a></td><td>Build string from LCS table — hard!</td></tr>
+<tr><td>115</td><td><a href="https://leetcode.com/problems/distinct-subsequences/" target="_blank">Distinct Subsequences</a></td><td>Count how many times t appears in s as subsequence</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 25: LIS ═══════════════════════ -->
+<div class="pattern" id="lis">
+<div class="pattern-header"><div class="pattern-num">25</div><div class="pattern-title">Longest Increasing Subsequence (LIS)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Imagine stacking boxes — each box must be smaller than the one below. What's the tallest tower you can build from a set of boxes? You don't have to use every box, but you must keep them in order. That's LIS — longest chain of increasing elements.</div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">LIS of [10, 9, 2, 5, 3, 7, 101, 18]</div><pre>
+  O(n²) approach: dp[i] = LIS ending at index i
+  
+  dp[0]=1 (10)  dp[1]=1 (9)  dp[2]=1 (2)
+  dp[3]=2 (2,5)  dp[4]=2 (2,3)  dp[5]=3 (2,3,7)
+  dp[6]=4 (2,3,7,101)  dp[7]=4 (2,3,7,18)
+  
+  <span class="result">✅ Answer: 4 → [2, 3, 7, 101] or [2, 3, 7, 18]</span>
+  
+  <span class="highlight">O(n log n) approach: maintain "smallest tail" array</span>
+  <span class="highlight">Use binary search to find where to place each element</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// LIS — O(n log n) with binary search (patience sorting)</span>
+public int lengthOfLIS(int[] nums) {
+    List&lt;Integer&gt; tails = new ArrayList&lt;&gt;();
+    for (int num : nums) {
+        int pos = Collections.binarySearch(tails, num);
+        if (pos &lt; 0) pos = -(pos + 1);
+        if (pos == tails.size()) tails.add(num);
+        else tails.set(pos, num);
+    }
+    return tails.size();
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func lengthOfLIS(nums []int) int {
+    tails := []int{}
+    for _, num := range nums {
+        pos := sort.SearchInts(tails, num)
+        if pos == len(tails) { tails = append(tails, num)
+        } else { tails[pos] = num }
+    }
+    return len(tails)
+}
+</pre></div>
+<div class="code-panel python"><pre>
+import bisect
+def length_of_lis(nums):
+    tails = []
+    for num in nums:
+        pos = bisect.bisect_left(tails, num)
+        if pos == len(tails): tails.append(num)
+        else: tails[pos] = num
+    return len(tails)
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — O(n²) DP approach<div class="tier-desc">dp[i] = LIS ending at index i</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>300</td><td><a href="https://leetcode.com/problems/longest-increasing-subsequence/" target="_blank">Longest Increasing Subsequence</a></td><td>Both O(n²) and O(n log n) approaches</td></tr>
+<tr><td>674</td><td><a href="https://leetcode.com/problems/longest-continuous-increasing-subsequence/" target="_blank">Longest Continuous Increasing</a></td><td>Contiguous version — simpler but different</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — LIS variations<div class="tier-desc">Count, chain, and extend</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>673</td><td><a href="https://leetcode.com/problems/number-of-longest-increasing-subsequence/" target="_blank">Number of LIS</a></td><td>Count ALL longest subsequences</td></tr>
+<tr><td>646</td><td><a href="https://leetcode.com/problems/maximum-length-of-pair-chain/" target="_blank">Maximum Length of Pair Chain</a></td><td>Greedy/DP on intervals — LIS variant</td></tr>
+<tr><td>1048</td><td><a href="https://leetcode.com/problems/longest-string-chain/" target="_blank">Longest String Chain</a></td><td>LIS where "increasing" = adding one character</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — 2D LIS<div class="tier-desc">Sort one dimension, LIS on the other</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>354</td><td><a href="https://leetcode.com/problems/russian-doll-envelopes/" target="_blank">Russian Doll Envelopes</a></td><td>Sort by width, reverse height, LIS on height</td></tr>
+<tr><td>329</td><td><a href="https://leetcode.com/problems/longest-increasing-path-in-a-matrix/" target="_blank">Longest Increasing Path in Matrix</a></td><td>DFS + memo — LIS on 2D grid</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 26: GRID DP ═══════════════════════ -->
+<div class="pattern" id="grid-dp">
+<div class="pattern-header"><div class="pattern-num">26</div><div class="pattern-title">Grid DP</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Walking through a city grid from top-left to bottom-right, only moving right or down. At each intersection, choose the path that gives you the most coins (or avoids the most obstacles). The best path to any intersection = best path to the cell above or to the left.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">grid/matrix traversal</span><span class="keyword">unique paths</span><span class="keyword">minimum path sum</span><span class="keyword">right and down only</span><span class="keyword">reach bottom-right</span><span class="keyword">obstacles</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Minimum Path Sum — find path from top-left to bottom-right with smallest sum</p>
+<div class="step-box"><div class="step-title">dp[i][j] = min cost to reach cell (i,j)</div><pre>
+  Grid:         DP table:
+  [1, 3, 1]     [<span class="highlight">1</span>, 4, 5]      First row/col: cumulative sum
+  [1, 5, 1]  →  [2, <span class="highlight">7</span>, 6]      dp[i][j] = grid[i][j] + min(top, left)
+  [4, 2, 1]     [6, 8, <span class="result">7</span>]      Path: 1→3→1→1→1 = <span class="result">✅ 7</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Minimum Path Sum (LC #64) — O(m×n) time, O(1) space (in-place)</span>
+public int minPathSum(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    for (int i = 0; i &lt; m; i++)
+        for (int j = 0; j &lt; n; j++) {
+            if (i == 0 &amp;&amp; j == 0) continue;
+            else if (i == 0) grid[i][j] += grid[i][j-1];
+            else if (j == 0) grid[i][j] += grid[i-1][j];
+            else grid[i][j] += Math.min(grid[i-1][j], grid[i][j-1]);
+        }
+    return grid[m-1][n-1];
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func minPathSum(grid [][]int) int {
+    m, n := len(grid), len(grid[0])
+    for i := 0; i < m; i++ {
+        for j := 0; j < n; j++ {
+            if i == 0 && j == 0 { continue }
+            if i == 0 { grid[i][j] += grid[i][j-1]
+            } else if j == 0 { grid[i][j] += grid[i-1][j]
+            } else { grid[i][j] += min(grid[i-1][j], grid[i][j-1]) }
+        }
+    }
+    return grid[m-1][n-1]
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def min_path_sum(grid):
+    m, n = len(grid), len(grid[0])
+    for i in range(m):
+        for j in range(n):
+            if i == 0 and j == 0: continue
+            elif i == 0: grid[i][j] += grid[i][j-1]
+            elif j == 0: grid[i][j] += grid[i-1][j]
+            else: grid[i][j] += min(grid[i-1][j], grid[i][j-1])
+    return grid[m-1][n-1]
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases</div>
+<ul class="edge-list">
+<li>First row and first column are special — only one direction possible (left or top).</li>
+<li>For "number of paths", use addition instead of min/max. For "obstacles", set dp=0 at obstacle cells.</li>
+<li>Can solve in-place by modifying the input grid, or use a 1D array rolling over rows.</li>
+</ul></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Basic grid traversal<div class="tier-desc">Right and down only</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>62</td><td><a href="https://leetcode.com/problems/unique-paths/" target="_blank">Unique Paths</a></td><td>Count paths from top-left to bottom-right</td></tr>
+<tr><td>63</td><td><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank">Unique Paths II (Obstacles)</a></td><td>Same but skip blocked cells</td></tr>
+<tr><td>64</td><td><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank">Minimum Path Sum</a></td><td>Min cost path — dp[i][j] = grid + min(top,left)</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Complex grid DP<div class="tier-desc">Multiple passes, diagonal moves</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>120</td><td><a href="https://leetcode.com/problems/triangle/" target="_blank">Triangle</a></td><td>Top-down triangle — bottom-up DP is elegant</td></tr>
+<tr><td>221</td><td><a href="https://leetcode.com/problems/maximal-square/" target="_blank">Maximal Square</a></td><td>dp[i][j] = min(top,left,diagonal)+1 if '1'</td></tr>
+<tr><td>931</td><td><a href="https://leetcode.com/problems/minimum-falling-path-sum/" target="_blank">Minimum Falling Path Sum</a></td><td>Grid DP with 3 choices (down-left, down, down-right)</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Hard grid DP<div class="tier-desc">Multi-pass and complex transitions</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>85</td><td><a href="https://leetcode.com/problems/maximal-rectangle/" target="_blank">Maximal Rectangle</a></td><td>Histogram approach per row — combines patterns</td></tr>
+<tr><td>1463</td><td><a href="https://leetcode.com/problems/cherry-pickup-ii/" target="_blank">Cherry Pickup II</a></td><td>Two robots moving simultaneously — 3D DP</td></tr>
+<tr><td>741</td><td><a href="https://leetcode.com/problems/cherry-pickup/" target="_blank">Cherry Pickup</a></td><td>Two passes through grid simultaneously</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 27: STRING DP ═══════════════════════ -->
+<div class="pattern" id="string-dp">
+<div class="pattern-header"><div class="pattern-num">27</div><div class="pattern-title">String DP (Palindromes)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Checking if a word reads the same forwards and backwards — but what's the <em>longest</em> palindrome hiding inside a string? Expand from the center, or use DP: if the outer characters match AND the inner substring is a palindrome, then the whole thing is a palindrome.</div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Longest Palindromic Substring of "babad"</div><pre>
+  dp[i][j] = true if s[i..j] is palindrome
+  
+  Base: single chars always palindrome: dp[i][i] = true
+  Length 2: dp[i][i+1] = (s[i] == s[i+1])
+  Length 3+: dp[i][j] = (s[i]==s[j]) AND dp[i+1][j-1]
+  
+  "babad": dp[0][2] = s[0]=='b', s[2]=='b', dp[1][1]=true → <span class="highlight">"bab" ✓</span>
+           dp[1][3] = s[1]=='a', s[3]=='a', dp[2][2]=true → <span class="highlight">"aba" ✓</span>
+           
+  <span class="result">✅ Longest = "bab" or "aba" (length 3)</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Longest Palindromic Substring (LC #5) — Expand from center: O(n²)</span>
+public String longestPalindrome(String s) {
+    int start = 0, maxLen = 1;
+    for (int i = 0; i &lt; s.length(); i++) {
+        int len1 = expand(s, i, i);     <span class="comment">// odd length</span>
+        int len2 = expand(s, i, i+1);   <span class="comment">// even length</span>
+        int len = Math.max(len1, len2);
+        if (len &gt; maxLen) { maxLen = len; start = i - (len-1)/2; }
+    }
+    return s.substring(start, start + maxLen);
+}
+int expand(String s, int l, int r) {
+    while (l &gt;= 0 &amp;&amp; r &lt; s.length() &amp;&amp; s.charAt(l) == s.charAt(r)) { l--; r++; }
+    return r - l - 1;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func longestPalindrome(s string) string {
+    start, maxLen := 0, 1
+    expand := func(l, r int) int {
+        for l >= 0 && r < len(s) && s[l] == s[r] { l--; r++ }
+        return r - l - 1
+    }
+    for i := range s {
+        l1, l2 := expand(i, i), expand(i, i+1)
+        l := max(l1, l2)
+        if l > maxLen { maxLen = l; start = i - (l-1)/2 }
+    }
+    return s[start:start+maxLen]
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def longest_palindrome(s):
+    start, max_len = 0, 1
+    def expand(l, r):
+        while l >= 0 and r < len(s) and s[l] == s[r]: l -= 1; r += 1
+        return r - l - 1
+    for i in range(len(s)):
+        l = max(expand(i, i), expand(i, i + 1))
+        if l > max_len: max_len = l; start = i - (l - 1) // 2
+    return s[start:start + max_len]
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Palindrome checking<div class="tier-desc">Two pointers + expand from center</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>125</td><td><a href="https://leetcode.com/problems/valid-palindrome/" target="_blank">Valid Palindrome</a></td><td>Two pointer palindrome check</td></tr>
+<tr><td>5</td><td><a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank">Longest Palindromic Substring</a></td><td>Expand from center or DP table</td></tr>
+<tr><td>647</td><td><a href="https://leetcode.com/problems/palindromic-substrings/" target="_blank">Palindromic Substrings</a></td><td>Count ALL palindromic substrings</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — DP on substrings<div class="tier-desc">Gap method: fill diagonal by diagonal</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>516</td><td><a href="https://leetcode.com/problems/longest-palindromic-subsequence/" target="_blank">Longest Palindromic Subsequence</a></td><td>LCS of string with its reverse!</td></tr>
+<tr><td>131</td><td><a href="https://leetcode.com/problems/palindrome-partitioning/" target="_blank">Palindrome Partitioning</a></td><td>Backtracking + palindrome checking</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Hard string DP<div class="tier-desc">Min operations and regex</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>132</td><td><a href="https://leetcode.com/problems/palindrome-partitioning-ii/" target="_blank">Palindrome Partitioning II</a></td><td>Min cuts to partition into palindromes</td></tr>
+<tr><td>10</td><td><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank">Regular Expression Matching</a></td><td>2D DP with '.' and '*' wildcards</td></tr>
+<tr><td>44</td><td><a href="https://leetcode.com/problems/wildcard-matching/" target="_blank">Wildcard Matching</a></td><td>DP with '?' and '*' patterns</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 28: INTERVAL DP ═══════════════════════ -->
+<div class="pattern" id="interval-dp">
+<div class="pattern-header"><div class="pattern-num">28</div><div class="pattern-title">Interval DP</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Imagine popping balloons in a row — when you pop one, its neighbors become adjacent. The order of popping matters! Interval DP tries ALL ways to split an interval [i..j] into [i..k] and [k+1..j], combining smaller intervals into larger ones.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">burst balloons</span><span class="keyword">matrix chain multiplication</span><span class="keyword">merge stones</span><span class="keyword">optimal BST</span><span class="keyword">partition into groups</span><span class="keyword">dp on range [i..j]</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Key idea — enumerate split points</div><pre>
+  dp[i][j] = best answer for subarray [i..j]
+  
+  For length = 2 to n:
+    For each start i:
+      j = i + length - 1
+      For each split k from i to j-1:
+        dp[i][j] = best of dp[i][k] + dp[k+1][j] + cost(i, k, j)
+  
+  <span class="highlight">Fill table by increasing length — small intervals first!</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Burst Balloons (LC #312) — Time: O(n³)  Space: O(n²)</span>
+public int maxCoins(int[] nums) {
+    int n = nums.length;
+    int[] a = new int[n + 2];  <span class="comment">// add boundary 1s</span>
+    a[0] = a[n + 1] = 1;
+    for (int i = 0; i &lt; n; i++) a[i + 1] = nums[i];
+    int[][] dp = new int[n + 2][n + 2];
+    for (int len = 1; len &lt;= n; len++)
+        for (int i = 1; i + len - 1 &lt;= n; i++) {
+            int j = i + len - 1;
+            for (int k = i; k &lt;= j; k++)  <span class="comment">// k = last balloon to burst</span>
+                dp[i][j] = Math.max(dp[i][j],
+                    dp[i][k-1] + a[i-1]*a[k]*a[j+1] + dp[k+1][j]);
+        }
+    return dp[1][n];
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def max_coins(nums):
+    a = [1] + nums + [1]
+    n = len(nums)
+    dp = [[0]*(n+2) for _ in range(n+2)]
+    for length in range(1, n+1):
+        for i in range(1, n-length+2):
+            j = i + length - 1
+            for k in range(i, j+1):  # last balloon to burst
+                dp[i][j] = max(dp[i][j],
+                    dp[i][k-1] + a[i-1]*a[k]*a[j+1] + dp[k+1][j])
+    return dp[1][n]
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Learn the interval template<div class="tier-desc">Fill dp by increasing interval length</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1039</td><td><a href="https://leetcode.com/problems/minimum-score-triangulation-of-polygon/" target="_blank">Min Score Triangulation</a></td><td>Split polygon into triangles — interval DP</td></tr>
+<tr><td>1000</td><td><a href="https://leetcode.com/problems/minimum-cost-to-merge-stones/" target="_blank">Minimum Cost to Merge Stones</a></td><td>Merge k consecutive piles</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">��</span> Interview-Ready — Classic hard problems<div class="tier-desc">O(n³) interval enumeration</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>312</td><td><a href="https://leetcode.com/problems/burst-balloons/" target="_blank">Burst Balloons</a></td><td>Reverse thinking: which balloon to burst LAST</td></tr>
+<tr><td>1547</td><td><a href="https://leetcode.com/problems/minimum-cost-to-cut-a-stick/" target="_blank">Minimum Cost to Cut a Stick</a></td><td>Interval DP on cut positions</td></tr>
+<tr><td>87</td><td><a href="https://leetcode.com/problems/scramble-string/" target="_blank">Scramble String</a></td><td>3D interval DP: can s2 be scrambled from s1?</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 29: BITMASK DP ═══════════════════════ -->
+<div class="pattern" id="bitmask-dp">
+<div class="pattern-header"><div class="pattern-num">29</div><div class="pattern-title">Bitmask DP</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Assigning tasks to workers — each worker does exactly one task. Track "which workers are already assigned" using a bitmask (binary number). Bit i = 1 means worker i is busy. Try assigning each remaining worker to the next task.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">n ≤ 20</span><span class="keyword">assign/permute small set</span><span class="keyword">TSP (traveling salesman)</span><span class="keyword">subset state</span><span class="keyword">all subsets</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Bitmask = which items are "used"</div><pre>
+  n = 3 items → 2³ = 8 possible states
+  mask = 101 (binary) → items 0 and 2 are used, item 1 is free
+  
+  Check bit i: <span class="highlight">(mask >> i) & 1</span>
+  Set bit i:   <span class="highlight">mask | (1 << i)</span>
+  Clear bit i: mask & ~(1 << i)
+  
+  dp[mask] = best answer when items in mask are used
+  Transition: try adding each unused item
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Learn bitmask basics<div class="tier-desc">Track subset state with bits</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>698</td><td><a href="https://leetcode.com/problems/partition-to-k-equal-sum-subsets/" target="_blank">Partition to K Equal Subsets</a></td><td>Bitmask tracks which elements used</td></tr>
+<tr><td>78</td><td><a href="https://leetcode.com/problems/subsets/" target="_blank">Subsets (bit manipulation)</a></td><td>Enumerate all 2^n subsets with bits</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — TSP and assignment<div class="tier-desc">O(2ⁿ × n) DP on subsets</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1494</td><td><a href="https://leetcode.com/problems/parallel-courses-ii/" target="_blank">Parallel Courses II</a></td><td>Bitmask DP on course prerequisites</td></tr>
+<tr><td>943</td><td><a href="https://leetcode.com/problems/find-the-shortest-superstring/" target="_blank">Find Shortest Superstring</a></td><td>TSP-like: visit all strings with max overlap</td></tr>
+<tr><td>847</td><td><a href="https://leetcode.com/problems/shortest-path-visiting-all-nodes/" target="_blank">Shortest Path Visiting All Nodes</a></td><td>BFS + bitmask — visit all nodes</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 30: STATE MACHINE ═══════════════════════ -->
+<div class="pattern" id="state-machine-dp">
+<div class="pattern-header"><div class="pattern-num">30</div><div class="pattern-title">State Machine DP</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Stock trading — at any day you're in one of several STATES: holding stock, not holding stock, in cooldown. Each state has rules for transitions (buy/sell/rest). Track the best profit in each state, and the answer is the best "not holding" state at the end.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">buy/sell stock</span><span class="keyword">multiple states</span><span class="keyword">cooldown period</span><span class="keyword">transaction fee</span><span class="keyword">at most K transactions</span><span class="keyword">state transitions</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Stock with Cooldown (LC #309)</div><pre>
+  States: HELD (have stock), SOLD (just sold), REST (ready to buy)
+  
+  Day:        0     1     2     3     4
+  Price:      1     2     3     0     2
+  
+  held[i]  = max(held[i-1],  rest[i-1] - price)  <span class="comment">// keep or buy</span>
+  sold[i]  = held[i-1] + price                    <span class="comment">// sell today</span>
+  rest[i]  = max(rest[i-1],  sold[i-1])           <span class="comment">// wait</span>
+  
+  <span class="result">✅ Answer = max(sold[n-1], rest[n-1])  (not holding at end)</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Best Time to Buy and Sell Stock with Cooldown (LC #309)</span>
+public int maxProfit(int[] prices) {
+    int held = Integer.MIN_VALUE, sold = 0, rest = 0;
+    for (int p : prices) {
+        int prevSold = sold;
+        sold = held + p;               <span class="comment">// sell</span>
+        held = Math.max(held, rest-p);  <span class="comment">// buy or hold</span>
+        rest = Math.max(rest, prevSold);<span class="comment">// cooldown</span>
+    }
+    return Math.max(sold, rest);
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func maxProfit(prices []int) int {
+    held, sold, rest := -1<<31, 0, 0
+    for _, p := range prices {
+        prevSold := sold
+        sold = held + p
+        held = max(held, rest-p)
+        rest = max(rest, prevSold)
+    }
+    return max(sold, rest)
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def max_profit(prices):
+    held, sold, rest = float('-inf'), 0, 0
+    for p in prices:
+        held, sold, rest = max(held, rest - p), held + p, max(rest, sold)
+    return max(sold, rest)
+</pre></div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Simple buy/sell<div class="tier-desc">Two states: holding vs not holding</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>121</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank">Buy and Sell Stock I</a></td><td>One transaction — track min price</td></tr>
+<tr><td>122</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank">Buy and Sell Stock II</a></td><td>Unlimited transactions — sum all profits</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Add constraints<div class="tier-desc">Cooldown, transaction fee, limited transactions</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>309</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/" target="_blank">Stock with Cooldown</a></td><td>3 states: held, sold, rest</td></tr>
+<tr><td>714</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/" target="_blank">Stock with Transaction Fee</a></td><td>Fee on each sell — adjust transition</td></tr>
+<tr><td>123</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/" target="_blank">Buy and Sell Stock III</a></td><td>At most 2 transactions — 4 states</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">��</span> Interview-Ready — Generalized K transactions<div class="tier-desc">Full state machine mastery</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>188</td><td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/" target="_blank">Buy and Sell Stock IV</a></td><td>At most K transactions — 2K states</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

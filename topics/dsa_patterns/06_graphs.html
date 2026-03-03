@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Graphs | Zero to Interview-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="back-link" href="index.html">← Back to All Patterns</a>
+<h1>📊 Graph Patterns</h1>
+<p class="subtitle">Patterns 16–20 · Navigate connected worlds</p>
+
+<!-- ═══════════════════════ PATTERN 16: BFS ON GRAPH ═══════════════════════ -->
+<div class="pattern" id="graph-bfs">
+<div class="pattern-header"><div class="pattern-num">16</div><div class="pattern-title">BFS on Graph</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">A ripple from a stone dropped in a pond — the wave reaches nearby points first, then farther points. BFS explores all nodes at distance 1, then distance 2, then 3... This guarantees the <strong>shortest path</strong> in unweighted graphs.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">shortest path (unweighted)</span><span class="keyword">nearest/closest</span><span class="keyword">level-by-level</span><span class="keyword">minimum steps</span><span class="keyword">spread/infection</span><span class="keyword">multi-source BFS</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Rotting Oranges — how many minutes until all oranges rot?<br><strong>Grid:</strong> 2=rotten, 1=fresh, 0=empty</p>
+<div class="step-box"><div class="step-title">Step 1 — Find all starting points (multi-source)</div><pre>
+  Grid:   [2, 1, 1]      Queue: [(0,0)]    fresh = 4
+          [1, 1, 0]      <span class="highlight">All rotten oranges go into queue first</span>
+          [0, 1, 1]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Process level by level (each level = 1 minute)</div><pre>
+  Minute 1: (0,0) rots → (0,1) and (1,0)    fresh = 2
+  Minute 2: (0,1)→(0,2), (1,0)→(1,1)        fresh = 0... wait
+  Minute 3: (0,2)→nothing, (1,1)→(2,1)       
+  Minute 4: (2,1)→(2,2)                      fresh = 0 → <span class="result">✅ Answer: 4</span>
+</pre></div>
+<div class="step-box"><div class="step-title">💡 Key insight</div><pre>
+  BFS level = time step. By processing ALL nodes at same distance
+  together (<span class="highlight">for i in range(len(queue))</span>), we track "waves".
+  Multi-source = multiple starting points in queue at once.
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Rotten Oranges (LC #994) — Multi-source BFS</span>
+<span class="comment">// Time: O(m×n)  Space: O(m×n)</span>
+public int orangesRotting(int[][] grid) {
+    int m = grid.length, n = grid[0].length, fresh = 0;
+    Queue&lt;int[]&gt; q = new LinkedList&lt;&gt;();
+    for (int r = 0; r &lt; m; r++)           <span class="comment">// Step 1: find all rotten</span>
+        for (int c = 0; c &lt; n; c++) {
+            if (grid[r][c] == 2) q.offer(new int[]{r, c});
+            if (grid[r][c] == 1) fresh++;
+        }
+    if (fresh == 0) return 0;              <span class="comment">// nothing to rot</span>
+    int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
+    int mins = 0;
+    while (!q.isEmpty() &amp;&amp; fresh &gt; 0) {
+        mins++;                             <span class="comment">// one minute per level</span>
+        for (int i = q.size(); i &gt; 0; i--) { <span class="comment">// process entire level</span>
+            int[] c = q.poll();
+            for (int[] d : dirs) {
+                int nr = c[0]+d[0], nc = c[1]+d[1];
+                if (nr&gt;=0 &amp;&amp; nr&lt;m &amp;&amp; nc&gt;=0 &amp;&amp; nc&lt;n &amp;&amp; grid[nr][nc]==1) {
+                    grid[nr][nc] = 2; fresh--;
+                    q.offer(new int[]{nr, nc});
+                }
+            }
+        }
+    }
+    return fresh == 0 ? mins : -1;          <span class="comment">// -1 if unreachable</span>
+}
+
+<span class="comment">/* ─── GENERIC BFS TEMPLATE ───
+   Queue&lt;Node&gt; queue = new LinkedList&lt;&gt;();
+   Set&lt;Node&gt; visited = new HashSet&lt;&gt;();
+   queue.offer(start); visited.add(start);
+   int level = 0;
+   while (!queue.isEmpty()) {
+       for (int i = queue.size(); i &gt; 0; i--) {
+           Node curr = queue.poll();
+           for (Node next : curr.neighbors()) {
+               if (!visited.contains(next)) {
+                   visited.add(next);
+                   queue.offer(next);
+               }
+           }
+       }
+       level++;
+   }
+*/</span>
+</pre></div>
+<div class="code-panel go"><pre>
+<span class="comment">// Rotten Oranges — Multi-source BFS</span>
+func orangesRotting(grid [][]int) int {
+    m, n := len(grid), len(grid[0])
+    q := [][2]int{}; fresh := 0
+    for r := 0; r &lt; m; r++ {
+        for c := 0; c &lt; n; c++ {
+            if grid[r][c] == 2 { q = append(q, [2]int{r, c}) }
+            if grid[r][c] == 1 { fresh++ }
+        }
+    }
+    if fresh == 0 { return 0 }
+    dirs := [4][2]int{{0,1},{0,-1},{1,0},{-1,0}}
+    mins := 0
+    for len(q) &gt; 0 &amp;&amp; fresh &gt; 0 {
+        mins++
+        for i := len(q); i &gt; 0; i-- {
+            c := q[0]; q = q[1:]
+            for _, d := range dirs {
+                nr, nc := c[0]+d[0], c[1]+d[1]
+                if nr&gt;=0 &amp;&amp; nr&lt;m &amp;&amp; nc&gt;=0 &amp;&amp; nc&lt;n &amp;&amp; grid[nr][nc]==1 {
+                    grid[nr][nc] = 2; fresh--
+                    q = append(q, [2]int{nr, nc})
+                }
+            }
+        }
+    }
+    if fresh == 0 { return mins }; return -1
+}
+</pre></div>
+<div class="code-panel python"><pre>
+<span class="comment"># Rotten Oranges — Multi-source BFS</span>
+from collections import deque
+def oranges_rotting(grid):
+    m, n = len(grid), len(grid[0])
+    q, fresh = deque(), 0
+    for r in range(m):
+        for c in range(n):
+            if grid[r][c] == 2: q.append((r, c))
+            if grid[r][c] == 1: fresh += 1
+    if fresh == 0: return 0
+    dirs, mins = [(0,1),(0,-1),(1,0),(-1,0)], 0
+    while q and fresh &gt; 0:
+        mins += 1
+        for _ in range(len(q)):      <span class="comment"># process entire level</span>
+            r, c = q.popleft()
+            for dr, dc in dirs:
+                nr, nc = r+dr, c+dc
+                if 0&lt;=nr&lt;m and 0&lt;=nc&lt;n and grid[nr][nc]==1:
+                    grid[nr][nc] = 2; fresh -= 1
+                    q.append((nr, nc))
+    return mins if fresh == 0 else -1
+
+<span class="comment"># ─── GENERIC BFS TEMPLATE ───
+# queue = deque([start]); visited = {start}
+# level = 0
+# while queue:
+#     for _ in range(len(queue)):
+#         curr = queue.popleft()
+#         for next_node in curr.neighbors:
+#             if next_node not in visited:
+#                 visited.add(next_node)
+#                 queue.append(next_node)
+#     level += 1</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Forgetting to mark nodes as <strong>visited BEFORE</strong> adding to queue (causes duplicates and TLE).</li>
+<li>Multi-source BFS: add ALL starting points to queue before starting — don't run separate BFS for each.</li>
+<li>Off-by-one in level counting: level increments AFTER processing all nodes at current distance.</li>
+<li>Grid BFS: check bounds <code>0 <= nr < m</code> before accessing <code>grid[nr][nc]</code>.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(V + E)</div><div class="explain">Visit each node once, check each edge once. For grids: O(m×n).</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(V)</div><div class="explain">Queue + visited set. Worst case all nodes in queue at once.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Grid BFS fundamentals<div class="tier-desc">Learn the queue + visited + 4-direction pattern</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>733</td><td><a href="https://leetcode.com/problems/flood-fill/" target="_blank">Flood Fill</a></td><td>Simplest BFS/DFS on grid — paint connected region</td></tr>
+<tr><td>542</td><td><a href="https://leetcode.com/problems/01-matrix/" target="_blank">01 Matrix</a></td><td>Multi-source BFS — distance from each cell to nearest 0</td></tr>
+<tr><td>1926</td><td><a href="https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/" target="_blank">Nearest Exit from Entrance in Maze</a></td><td>BFS shortest path on grid with walls</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Level-based BFS<div class="tier-desc">Track levels for time/distance</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>994</td><td><a href="https://leetcode.com/problems/rotting-oranges/" target="_blank">Rotting Oranges</a></td><td>Multi-source BFS with time tracking</td></tr>
+<tr><td>1091</td><td><a href="https://leetcode.com/problems/shortest-path-in-binary-matrix/" target="_blank">Shortest Path in Binary Matrix</a></td><td>BFS with 8 directions (diagonal)</td></tr>
+<tr><td>286</td><td><a href="https://leetcode.com/problems/walls-and-gates/" target="_blank">Walls and Gates</a></td><td>Multi-source BFS from all gates simultaneously</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Graph BFS (not just grids)<div class="tier-desc">Adjacency list BFS, implicit graphs</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>133</td><td><a href="https://leetcode.com/problems/clone-graph/" target="_blank">Clone Graph</a></td><td>BFS + HashMap to deep-copy a graph</td></tr>
+<tr><td>752</td><td><a href="https://leetcode.com/problems/open-the-lock/" target="_blank">Open the Lock</a></td><td>State-space BFS — each lock combo is a node</td></tr>
+<tr><td>863</td><td><a href="https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/" target="_blank">All Nodes Distance K in Binary Tree</a></td><td>Convert tree to graph + BFS from target</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — FAANG BFS<div class="tier-desc">These appear in real interviews</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>127</td><td><a href="https://leetcode.com/problems/word-ladder/" target="_blank">Word Ladder</a></td><td>BFS on implicit word graph — shortest transformation</td></tr>
+<tr><td>317</td><td><a href="https://leetcode.com/problems/shortest-distance-from-all-buildings/" target="_blank">Shortest Distance from All Buildings</a></td><td>BFS from each building — sum distances</td></tr>
+<tr><td>815</td><td><a href="https://leetcode.com/problems/bus-routes/" target="_blank">Bus Routes</a></td><td>BFS on route graph — min bus transfers</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 17: DFS ON GRAPH ═══════════════════════ -->
+<div class="pattern" id="graph-dfs">
+<div class="pattern-header"><div class="pattern-num">17</div><div class="pattern-title">DFS on Graph</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Exploring a maze — always go as deep as possible down one path, painting walls as you go. Hit a dead end? Backtrack and try the next unexplored tunnel. DFS is great for counting components, detecting cycles, and exhaustive search.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">number of islands/components</span><span class="keyword">connected component</span><span class="keyword">flood fill</span><span class="keyword">cycle detection</span><span class="keyword">path exists</span><span class="keyword">surrounded regions</span><span class="keyword">clone graph</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Number of Islands — count connected '1' groups</p>
+<div class="step-box"><div class="step-title">Step 1 — Scan grid, find unvisited '1'</div><pre>
+  Grid:   [<span class="highlight">1</span>, 1, 0, 0, 0]    Found '1' at (0,0) → count = 1
+          [1, 1, 0, 0, 0]    Start DFS from here
+          [0, 0, 1, 0, 0]
+          [0, 0, 0, 1, 1]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — DFS marks entire island as visited</div><pre>
+  Grid:   [<span class="result">✓, ✓</span>, 0, 0, 0]    DFS visits (0,1), (1,0), (1,1)
+          [<span class="result">✓, ✓</span>, 0, 0, 0]    <span class="highlight">One DFS call = one complete island</span>
+          [0, 0, 1, 0, 0]
+          [0, 0, 0, 1, 1]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 3 — Continue scanning</div><pre>
+  (2,2) → count = 2    (3,3) → count = 3 (also visits 3,4)
+  <span class="result">✅ Answer: 3 islands</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Number of Islands (LC #200) — Time: O(m×n)  Space: O(m×n) stack</span>
+public int numIslands(char[][] grid) {
+    int count = 0;
+    for (int r = 0; r &lt; grid.length; r++)
+        for (int c = 0; c &lt; grid[0].length; c++)
+            if (grid[r][c] == '1') { count++; dfs(grid, r, c); }
+    return count;
+}
+void dfs(char[][] grid, int r, int c) {
+    if (r &lt; 0 || r &gt;= grid.length || c &lt; 0 || c &gt;= grid[0].length
+        || grid[r][c] != '1') return;
+    grid[r][c] = '0';                     <span class="comment">// mark visited</span>
+    dfs(grid, r+1, c); dfs(grid, r-1, c);
+    dfs(grid, r, c+1); dfs(grid, r, c-1);
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func numIslands(grid [][]byte) int {
+    count := 0
+    for r := range grid {
+        for c := range grid[0] {
+            if grid[r][c] == '1' { count++; dfs(grid, r, c) }
+        }
+    }
+    return count
+}
+func dfs(grid [][]byte, r, c int) {
+    if r&lt;0||r&gt;=len(grid)||c&lt;0||c&gt;=len(grid[0])||grid[r][c]!='1' { return }
+    grid[r][c] = '0'
+    dfs(grid,r+1,c); dfs(grid,r-1,c); dfs(grid,r,c+1); dfs(grid,r,c-1)
+}
+</pre></div>
+<div class="code-panel python"><pre>
+def num_islands(grid):
+    count = 0
+    for r in range(len(grid)):
+        for c in range(len(grid[0])):
+            if grid[r][c] == '1':
+                count += 1; dfs(grid, r, c)
+    return count
+
+def dfs(grid, r, c):
+    if r&lt;0 or r&gt;=len(grid) or c&lt;0 or c&gt;=len(grid[0]) or grid[r][c]!='1':
+        return
+    grid[r][c] = '0'
+    dfs(grid,r+1,c); dfs(grid,r-1,c)
+    dfs(grid,r,c+1); dfs(grid,r,c-1)
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Modifying input grid to mark visited is OK in interviews (ask interviewer first). Alternative: use a <code>visited[][]</code> boolean array.</li>
+<li>Stack overflow on very large grids — convert to iterative DFS with explicit stack if grid can be 1000×1000+.</li>
+<li>DFS vs BFS: for "count components" or "does path exist" → DFS. For "shortest path" → BFS always.</li>
+<li>Don't forget all 4 directions. For diagonal: use 8 directions.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(V + E)</div><div class="explain">Visit each node and edge once. Grid: O(m×n).</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(V)</div><div class="explain">Recursion stack depth. Worst case: O(m×n) for one big island.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Grid DFS basics<div class="tier-desc">Learn the 4-direction recursive pattern</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>733</td><td><a href="https://leetcode.com/problems/flood-fill/" target="_blank">Flood Fill</a></td><td>Simplest DFS — change color of connected region</td></tr>
+<tr><td>200</td><td><a href="https://leetcode.com/problems/number-of-islands/" target="_blank">Number of Islands</a></td><td>THE graph DFS problem — count components</td></tr>
+<tr><td>695</td><td><a href="https://leetcode.com/problems/max-area-of-island/" target="_blank">Max Area of Island</a></td><td>DFS + return size of component</td></tr>
+<tr><td>463</td><td><a href="https://leetcode.com/problems/island-perimeter/" target="_blank">Island Perimeter</a></td><td>Count edges touching water/boundary</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Graph DFS + cycle detection<div class="tier-desc">Adjacency list DFS, visited states, cloning</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>130</td><td><a href="https://leetcode.com/problems/surrounded-regions/" target="_blank">Surrounded Regions</a></td><td>DFS from edges inward — reverse thinking</td></tr>
+<tr><td>133</td><td><a href="https://leetcode.com/problems/clone-graph/" target="_blank">Clone Graph</a></td><td>DFS + HashMap for deep copy</td></tr>
+<tr><td>207</td><td><a href="https://leetcode.com/problems/course-schedule/" target="_blank">Course Schedule</a></td><td>Cycle detection — 3-color DFS</td></tr>
+<tr><td>841</td><td><a href="https://leetcode.com/problems/keys-and-rooms/" target="_blank">Keys and Rooms</a></td><td>DFS on adjacency list — visit all rooms?</td></tr>
+</table></div>
+<div class="tier tier-confident">
+<div class="tier-header"><span class="tier-emoji">🌲</span> Confident — Complex DFS<div class="tier-desc">Multiple sources, path tracking, special grids</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>417</td><td><a href="https://leetcode.com/problems/pacific-atlantic-water-flow/" target="_blank">Pacific Atlantic Water Flow</a></td><td>DFS from both oceans — find intersection</td></tr>
+<tr><td>1020</td><td><a href="https://leetcode.com/problems/number-of-enclaves/" target="_blank">Number of Enclaves</a></td><td>DFS from boundary, count remaining land</td></tr>
+<tr><td>547</td><td><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank">Number of Provinces</a></td><td>DFS on adjacency matrix (not grid)</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Complex graph traversals for FAANG</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>332</td><td><a href="https://leetcode.com/problems/reconstruct-itinerary/" target="_blank">Reconstruct Itinerary</a></td><td>Eulerian path — DFS with edge deletion</td></tr>
+<tr><td>802</td><td><a href="https://leetcode.com/problems/find-eventual-safe-states/" target="_blank">Find Eventual Safe States</a></td><td>Reverse graph + cycle detection</td></tr>
+<tr><td>399</td><td><a href="https://leetcode.com/problems/evaluate-division/" target="_blank">Evaluate Division</a></td><td>Weighted graph DFS — a/b=2, b/c=3, a/c=?</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 18: TOPOLOGICAL SORT ═══════════════════════ -->
+<div class="pattern" id="topo-sort">
+<div class="pattern-header"><div class="pattern-num">18</div><div class="pattern-title">Topological Sort</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">College courses with prerequisites — you MUST take Calc I before Calc II, and Linear Algebra before ML. Topological Sort gives a valid ordering that respects ALL prerequisites. If the prerequisites form a cycle (Calc I requires Calc II requires Calc I), it's <strong>impossible</strong>!</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">prerequisites</span><span class="keyword">dependencies</span><span class="keyword">ordering</span><span class="keyword">course schedule</span><span class="keyword">build order</span><span class="keyword">directed acyclic graph (DAG)</span><span class="keyword">alien dictionary</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual — Kahn's Algorithm (BFS-based)</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Course Schedule II — find a valid order to take courses</p>
+<div class="step-box"><div class="step-title">Step 1 — Build graph + count in-degrees</div><pre>
+  Courses: 0→1, 0→2, 1→3, 2→3
+  Graph:  0 → [1, 2]     In-degree: 0→<span class="highlight">0</span>, 1→1, 2→1, 3→2
+          1 → [3]         Nodes with in-degree 0 go in queue
+          2 → [3]         Queue: [0]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Process queue: remove node, reduce in-degrees</div><pre>
+  Pop 0 → output [0], reduce in-deg of 1→0, 2→0
+  Queue: [1, 2]   (both became 0)
+  Pop 1 → output [0,1], reduce 3→1
+  Pop 2 → output [0,1,2], reduce 3→0
+  Queue: [3]
+  Pop 3 → output [0,1,2,3]   <span class="result">✅ Valid order!</span>
+</pre></div>
+<div class="step-box"><div class="step-title">💡 Cycle detection</div><pre>
+  If output.length &lt; numCourses → <span class="highlight">cycle exists!</span>
+  Some nodes never reach in-degree 0 = stuck in a cycle.
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Course Schedule II (LC #210) — Kahn's BFS Topological Sort</span>
+<span class="comment">// Time: O(V + E)  Space: O(V + E)</span>
+public int[] findOrder(int n, int[][] prereqs) {
+    List&lt;List&lt;Integer&gt;&gt; g = new ArrayList&lt;&gt;();
+    int[] inDeg = new int[n];
+    for (int i = 0; i &lt; n; i++) g.add(new ArrayList&lt;&gt;());
+    for (int[] p : prereqs) {
+        g.get(p[1]).add(p[0]);   <span class="comment">// p[1] → p[0]</span>
+        inDeg[p[0]]++;
+    }
+    Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+    for (int i = 0; i &lt; n; i++)
+        if (inDeg[i] == 0) q.offer(i);  <span class="comment">// start with no-prereq courses</span>
+    int[] order = new int[n]; int idx = 0;
+    while (!q.isEmpty()) {
+        int node = q.poll();
+        order[idx++] = node;
+        for (int next : g.get(node))
+            if (--inDeg[next] == 0) q.offer(next);
+    }
+    return idx == n ? order : new int[0];  <span class="comment">// empty = cycle!</span>
+}
+</pre></div>
+<div class="code-panel go"><pre>
+func findOrder(n int, prereqs [][]int) []int {
+    g := make([][]int, n); inDeg := make([]int, n)
+    for _, p := range prereqs {
+        g[p[1]] = append(g[p[1]], p[0]); inDeg[p[0]]++
+    }
+    q := []int{}
+    for i, d := range inDeg { if d == 0 { q = append(q, i) } }
+    order := []int{}
+    for len(q) > 0 {
+        node := q[0]; q = q[1:]
+        order = append(order, node)
+        for _, next := range g[node] {
+            inDeg[next]--
+            if inDeg[next] == 0 { q = append(q, next) }
+        }
+    }
+    if len(order) == n { return order }
+    return nil
+}
+</pre></div>
+<div class="code-panel python"><pre>
+from collections import deque
+def find_order(n, prereqs):
+    graph = [[] for _ in range(n)]
+    in_deg = [0] * n
+    for course, pre in prereqs:
+        graph[pre].append(course)
+        in_deg[course] += 1
+
+    q = deque(i for i in range(n) if in_deg[i] == 0)
+    order = []
+    while q:
+        node = q.popleft()
+        order.append(node)
+        for nxt in graph[node]:
+            in_deg[nxt] -= 1
+            if in_deg[nxt] == 0:
+                q.append(nxt)
+    return order if len(order) == n else []
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Forgetting to handle <strong>disconnected components</strong> — nodes with no edges still need in-degree 0 processing.</li>
+<li>Two approaches: <strong>Kahn's (BFS)</strong> is easier to implement and returns the order. <strong>DFS-based</strong> uses post-order reversal.</li>
+<li>Cycle detection: Kahn's → output.size ≠ n. DFS → finding a node in GRAY (currently being processed) state.</li>
+<li>Graph direction matters: "0 is a prerequisite of 1" means edge 0 → 1, NOT 1 → 0.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(V + E)</div><div class="explain">Process each node and edge exactly once.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(V + E)</div><div class="explain">Adjacency list + in-degree array + queue.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">�� Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Can you finish all courses?<div class="tier-desc">Build graph + detect cycles</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>207</td><td><a href="https://leetcode.com/problems/course-schedule/" target="_blank">Course Schedule</a></td><td>Just detect if cycle exists (true/false)</td></tr>
+<tr><td>210</td><td><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank">Course Schedule II</a></td><td>Return the actual valid ordering</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Build graphs from clues<div class="tier-desc">The hard part is constructing the graph, not the sort</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1462</td><td><a href="https://leetcode.com/problems/course-schedule-iv/" target="_blank">Course Schedule IV</a></td><td>Transitive prerequisites — reachability</td></tr>
+<tr><td>802</td><td><a href="https://leetcode.com/problems/find-eventual-safe-states/" target="_blank">Find Eventual Safe States</a></td><td>Reverse graph topo sort — find non-cycle nodes</td></tr>
+<tr><td>2115</td><td><a href="https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies/" target="_blank">Find All Possible Recipes</a></td><td>Practical dependency resolution</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — FAANG topo sort<div class="tier-desc">Build graph from comparisons, parallel scheduling</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>269</td><td><a href="https://leetcode.com/problems/alien-dictionary/" target="_blank">Alien Dictionary</a></td><td>Infer letter ordering from sorted words + topo sort</td></tr>
+<tr><td>1136</td><td><a href="https://leetcode.com/problems/parallel-courses/" target="_blank">Parallel Courses</a></td><td>Topo sort levels = semesters (BFS levels)</td></tr>
+<tr><td>329</td><td><a href="https://leetcode.com/problems/longest-increasing-path-in-a-matrix/" target="_blank">Longest Increasing Path in Matrix</a></td><td>Topo sort on grid — longest path in DAG</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 19: UNION-FIND ═══════════════════════ -->
+<div class="pattern" id="union-find">
+<div class="pattern-header"><div class="pattern-num">19</div><div class="pattern-title">Union-Find (Disjoint Set)</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Groups of friends at a party. When Alice shakes hands with Bob, their friend groups merge into one. Later someone asks "Are Alice and Carlos in the same group?" Union-Find answers this in nearly <strong>O(1)</strong> using path compression and union by rank.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">connected components (dynamic)</span><span class="keyword">grouping/merging</span><span class="keyword">redundant connection</span><span class="keyword">accounts merge</span><span class="keyword">MST (Kruskal's)</span><span class="keyword">"are X and Y connected?"</span></div></div>
+
+<div class="section"><div class="section-label visual">�� Step-by-Step Visual</div>
+<div class="step-box"><div class="step-title">Step 1 — Initialize: everyone is their own parent</div><pre>
+  parent: [0, 1, 2, 3, 4]    <span class="comment">Each node points to itself</span>
+  rank:   [0, 0, 0, 0, 0]    <span class="comment">All trees have height 0</span>
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Union(0, 1) and Union(2, 3)</div><pre>
+  parent: [0, <span class="highlight">0</span>, 2, <span class="highlight">2</span>, 4]    <span class="comment">1→0, 3→2</span>
+  Two groups: {0,1} and {2,3} and {4}
+</pre></div>
+<div class="step-box"><div class="step-title">Step 3 — Union(1, 3): merges the two groups</div><pre>
+  find(1)=0, find(3)=2 → union(0,2) → parent[2]=0
+  parent: [0, 0, <span class="highlight">0</span>, 2, 4]   Now {0,1,2,3} are one group
+  
+  <span class="highlight">Path Compression:</span> find(3) → 3→2→0. Now set parent[3]=0 directly!
+  Next call to find(3) is O(1).   <span class="result">✅ Nearly O(1) per operation!</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Union-Find with Path Compression + Union by Rank</span>
+<span class="comment">// Time: O(α(n)) ≈ O(1) per operation</span>
+class UnionFind {
+    int[] parent, rank;
+    int components;
+    
+    UnionFind(int n) {
+        parent = new int[n]; rank = new int[n];
+        components = n;
+        for (int i = 0; i &lt; n; i++) parent[i] = i;
+    }
+    
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);  <span class="comment">// path compression!</span>
+        return parent[x];
+    }
+    
+    boolean union(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py) return false;      <span class="comment">// already same group</span>
+        if (rank[px] &lt; rank[py]) parent[px] = py;
+        else if (rank[px] &gt; rank[py]) parent[py] = px;
+        else { parent[py] = px; rank[px]++; }
+        components--;
+        return true;                     <span class="comment">// merged!</span>
+    }
+    
+    boolean connected(int x, int y) { return find(x) == find(y); }
+}
+</pre></div>
+<div class="code-panel go"><pre>
+type UF struct {
+    parent, rank []int
+    components   int
+}
+func NewUF(n int) *UF {
+    p := make([]int, n)
+    for i := range p { p[i] = i }
+    return &UF{p, make([]int, n), n}
+}
+func (u *UF) Find(x int) int {
+    if u.parent[x] != x { u.parent[x] = u.Find(u.parent[x]) }
+    return u.parent[x]
+}
+func (u *UF) Union(x, y int) bool {
+    px, py := u.Find(x), u.Find(y)
+    if px == py { return false }
+    if u.rank[px] &lt; u.rank[py] { u.parent[px] = py
+    } else if u.rank[px] > u.rank[py] { u.parent[py] = px
+    } else { u.parent[py] = px; u.rank[px]++ }
+    u.components--; return true
+}
+</pre></div>
+<div class="code-panel python"><pre>
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.components = n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py: return False
+        if self.rank[px] &lt; self.rank[py]: px, py = py, px
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]: self.rank[px] += 1
+        self.components -= 1
+        return True
+
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li>Always use BOTH path compression + union by rank for O(α(n)). Without optimization, it can degrade to O(n).</li>
+<li>When to use UF vs DFS/BFS: UF is better for <strong>dynamic</strong> "add edges and query connectivity". DFS/BFS is for static graphs.</li>
+<li>Common mistake: Forgetting to <code>find()</code> before comparing — you must compare ROOTS, not direct parents.</li>
+<li>For problems with strings as nodes (like accounts merge), map strings to integers first.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O(α(n))</div><div class="explain">Per operation. α = inverse Ackermann ≈ constant for all practical n.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(n)</div><div class="explain">Parent and rank arrays.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Count components with UF<div class="tier-desc">Implement UF and use it for grouping</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>547</td><td><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank">Number of Provinces</a></td><td>Count connected components with UF</td></tr>
+<tr><td>684</td><td><a href="https://leetcode.com/problems/redundant-connection/" target="_blank">Redundant Connection</a></td><td>Find the edge that creates a cycle</td></tr>
+<tr><td>200</td><td><a href="https://leetcode.com/problems/number-of-islands/" target="_blank">Number of Islands (UF approach)</a></td><td>Same problem, different data structure!</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate — Real-world grouping<div class="tier-desc">Merge entities by shared properties</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>721</td><td><a href="https://leetcode.com/problems/accounts-merge/" target="_blank">Accounts Merge</a></td><td>Group accounts by shared emails — real UF</td></tr>
+<tr><td>990</td><td><a href="https://leetcode.com/problems/satisfiability-of-equality-equations/" target="_blank">Satisfiability of Equality Equations</a></td><td>Union on == pairs, check != pairs</td></tr>
+<tr><td>1319</td><td><a href="https://leetcode.com/problems/number-of-operations-to-make-network-connected/" target="_blank">Make Network Connected</a></td><td>Count components, need components-1 cables</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — MST and complex UF<div class="tier-desc">Kruskal's algorithm and weighted UF</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1584</td><td><a href="https://leetcode.com/problems/min-cost-to-connect-all-points/" target="_blank">Min Cost to Connect All Points</a></td><td>Kruskal's MST with Union-Find</td></tr>
+<tr><td>685</td><td><a href="https://leetcode.com/problems/redundant-connection-ii/" target="_blank">Redundant Connection II</a></td><td>Directed graph — harder version</td></tr>
+<tr><td>1168</td><td><a href="https://leetcode.com/problems/optimize-water-distribution-in-a-village/" target="_blank">Optimize Water Distribution</a></td><td>Virtual node + MST — creative modeling</td></tr>
+</table></div>
+</div></div>
+
+<!-- ═══════════════════════ PATTERN 20: DIJKSTRA ═══════════════════════ -->
+<div class="pattern" id="dijkstra">
+<div class="pattern-header"><div class="pattern-num">20</div><div class="pattern-title">Dijkstra / Weighted Shortest Path</div></div>
+
+<div class="section"><div class="section-label analogy">🌍 Real-World Analogy</div>
+<div class="analogy-box">Google Maps finding the fastest route. Start at your location with distance 0. Check all neighboring cities — update their distances if you found a shorter route through the current city. Always process the <strong>closest unvisited city</strong> next (greedy!). Uses a priority queue (min-heap) to pick the closest city efficiently.</div></div>
+
+<div class="section"><div class="section-label recognize">🧠 When To Recognize</div>
+<div class="keyword-list"><span class="keyword">shortest path (weighted)</span><span class="keyword">minimum cost</span><span class="keyword">network delay</span><span class="keyword">cheapest flight</span><span class="keyword">non-negative weights</span><span class="keyword">priority queue + graph</span></div></div>
+
+<div class="section"><div class="section-label visual">📐 Step-by-Step Visual</div>
+<p style="color:var(--dim);font-size:.85rem;margin-bottom:10px"><strong>Problem:</strong> Find shortest path from node A to all other nodes</p>
+<div class="step-box"><div class="step-title">Step 1 — Initialize distances</div><pre>
+  Graph: A→B(1), A→C(4), B→C(2), B→D(5), C→D(1)
+  dist:  A=<span class="highlight">0</span>, B=∞, C=∞, D=∞
+  Heap:  [(0, A)]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 2 — Process closest node (A), update neighbors</div><pre>
+  Pop (0,A): B = min(∞, 0+1) = <span class="highlight">1</span>,  C = min(∞, 0+4) = <span class="highlight">4</span>
+  Heap: [(1,B), (4,C)]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 3 — Process B, update neighbors</div><pre>
+  Pop (1,B): C = min(4, 1+2) = <span class="highlight">3</span>,  D = min(∞, 1+5) = <span class="highlight">6</span>
+  Heap: [(3,C), (4,C_old), (6,D)]
+</pre></div>
+<div class="step-box"><div class="step-title">Step 4 — Process C (dist=3), update D</div><pre>
+  Pop (3,C): D = min(6, 3+1) = <span class="highlight">4</span>
+  Pop (4,C_old): skip! (4 > 3, already processed)
+  Pop (4,D): done!
+  
+  <span class="result">✅ Shortest: A→A=0, A→B=1, A→C=3, A→D=4</span>
+</pre></div></div>
+
+<div class="section"><div class="section-label code">💻 Code</div>
+<div class="code-tabs">
+<button class="code-tab java-tab active" data-lang="java">Java</button>
+<button class="code-tab go-tab" data-lang="go">Go</button>
+<button class="code-tab python-tab" data-lang="python">Python</button>
+</div>
+<div class="code-panel java active"><pre>
+<span class="comment">// Network Delay Time (LC #743) — Classic Dijkstra</span>
+<span class="comment">// Time: O((V+E) log V)  Space: O(V + E)</span>
+public int networkDelayTime(int[][] times, int n, int k) {
+    Map&lt;Integer,List&lt;int[]&gt;&gt; g = new HashMap&lt;&gt;();
+    for (int[] t : times)
+        g.computeIfAbsent(t[0], x-&gt;new ArrayList&lt;&gt;()).add(new int[]{t[1],t[2]});
+    
+    int[] dist = new int[n+1];
+    Arrays.fill(dist, Integer.MAX_VALUE);
+    dist[k] = 0;
+    
+    <span class="comment">// Min-heap: [distance, node]</span>
+    PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a,b)-&gt;a[0]-b[0]);
+    pq.offer(new int[]{0, k});
+    
+    while (!pq.isEmpty()) {
+        int[] cur = pq.poll();
+        int d = cur[0], u = cur[1];
+        if (d &gt; dist[u]) continue;      <span class="comment">// skip outdated entry</span>
+        for (int[] e : g.getOrDefault(u, List.of())) {
+            int v = e[0], w = e[1];
+            if (dist[u] + w &lt; dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.offer(new int[]{dist[v], v});
+            }
+        }
+    }
+    int mx = 0;
+    for (int i = 1; i &lt;= n; i++) mx = Math.max(mx, dist[i]);
+    return mx == Integer.MAX_VALUE ? -1 : mx;
+}
+</pre></div>
+<div class="code-panel go"><pre>
+<span class="comment">// Dijkstra using container/heap</span>
+import "container/heap"
+
+type Item struct{ node, dist int }
+type MinHeap []Item
+func (h MinHeap) Len() int           { return len(h) }
+func (h MinHeap) Less(i, j int) bool { return h[i].dist &lt; h[j].dist }
+func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *MinHeap) Push(x any)        { *h = append(*h, x.(Item)) }
+func (h *MinHeap) Pop() any          { old := *h; x := old[len(old)-1]; *h = old[:len(old)-1]; return x }
+
+func networkDelayTime(times [][]int, n, k int) int {
+    g := make(map[int][][2]int)
+    for _, t := range times { g[t[0]] = append(g[t[0]], [2]int{t[1], t[2]}) }
+    dist := make([]int, n+1)
+    for i := range dist { dist[i] = 1&lt;&lt;31 }; dist[k] = 0
+    h := &MinHeap{{k, 0}}
+    for h.Len() > 0 {
+        cur := heap.Pop(h).(Item)
+        if cur.dist > dist[cur.node] { continue }
+        for _, e := range g[cur.node] {
+            if dist[cur.node]+e[1] &lt; dist[e[0]] {
+                dist[e[0]] = dist[cur.node]+e[1]
+                heap.Push(h, Item{e[0], dist[e[0]]})
+            }
+        }
+    }
+    mx := 0
+    for i := 1; i &lt;= n; i++ { if dist[i] > mx { mx = dist[i] } }
+    if mx == 1&lt;&lt;31 { return -1 }; return mx
+}
+</pre></div>
+<div class="code-panel python"><pre>
+import heapq
+from collections import defaultdict
+
+def network_delay_time(times, n, k):
+    graph = defaultdict(list)
+    for u, v, w in times:
+        graph[u].append((v, w))
+
+    dist = {i: float('inf') for i in range(1, n+1)}
+    dist[k] = 0
+    heap = [(0, k)]           <span class="comment"># (distance, node)</span>
+
+    while heap:
+        d, u = heapq.heappop(heap)
+        if d > dist[u]:       <span class="comment"># skip outdated</span>
+            continue
+        for v, w in graph[u]:
+            if dist[u] + w &lt; dist[v]:
+                dist[v] = dist[u] + w
+                heapq.heappush(heap, (dist[v], v))
+
+    mx = max(dist.values())
+    return -1 if mx == float('inf') else mx
+</pre></div></div>
+
+<div class="section"><div class="section-label edge">⚠️ Edge Cases & Common Mistakes</div>
+<ul class="edge-list">
+<li><strong>Dijkstra only works with non-negative weights!</strong> For negative weights, use Bellman-Ford.</li>
+<li>The "skip outdated" check <code>if d > dist[u]: continue</code> is crucial for performance — without it, you process stale entries.</li>
+<li>Don't confuse with BFS: BFS = unweighted shortest path, Dijkstra = weighted shortest path.</li>
+<li>For problems with constraints like "at most K stops", you may need modified BFS instead of pure Dijkstra.</li>
+<li>Common in grids too! "Path with minimum effort" treats grid cells as weighted graph.</li>
+</ul></div>
+
+<div class="section"><div class="section-label complexity">⏱️ Complexity</div>
+<div class="complexity-grid">
+<div class="complexity-card"><div class="label">Time</div><div class="value">O((V+E) log V)</div><div class="explain">Each edge relaxation = heap push O(log V). Total E pushes.</div></div>
+<div class="complexity-card"><div class="label">Space</div><div class="value">O(V + E)</div><div class="explain">Distance array + adjacency list + heap.</div></div>
+</div></div>
+
+<div class="section"><div class="section-label problems">📝 Problem Roadmap — Build Confidence Step by Step</div>
+<div class="tier tier-beginner">
+<div class="tier-header"><span class="tier-emoji">🌱</span> Beginner — Standard Dijkstra<div class="tier-desc">Implement the template with a priority queue</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>743</td><td><a href="https://leetcode.com/problems/network-delay-time/" target="_blank">Network Delay Time</a></td><td>Classic Dijkstra — find time for signal to reach all nodes</td></tr>
+<tr><td>1514</td><td><a href="https://leetcode.com/problems/path-with-maximum-probability/" target="_blank">Path with Maximum Probability</a></td><td>Max instead of min — flip comparison, use max-heap</td></tr>
+</table></div>
+<div class="tier tier-intermediate">
+<div class="tier-header"><span class="tier-emoji">��</span> Intermediate — Dijkstra on grids<div class="tier-desc">Treat grid cells as weighted graph nodes</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>1631</td><td><a href="https://leetcode.com/problems/path-with-minimum-effort/" target="_blank">Path With Minimum Effort</a></td><td>Dijkstra on grid — weight = max abs diff along path</td></tr>
+<tr><td>778</td><td><a href="https://leetcode.com/problems/swim-in-rising-water/" target="_blank">Swim in Rising Water</a></td><td>Dijkstra on grid — min time to cross</td></tr>
+<tr><td>1368</td><td><a href="https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/" target="_blank">Min Cost Valid Path in Grid</a></td><td>0-1 BFS / Dijkstra with 0-cost edges</td></tr>
+</table></div>
+<div class="tier tier-interview">
+<div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready — Modified Dijkstra<div class="tier-desc">Add constraints to shortest path problems</div></div>
+<table class="problem-table"><tr><th>LC #</th><th>Problem</th><th>What You'll Learn</th></tr>
+<tr><td>787</td><td><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank">Cheapest Flights Within K Stops</a></td><td>BFS with stop limit — not pure Dijkstra!</td></tr>
+<tr><td>1334</td><td><a href="https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/" target="_blank">Find City with Fewest Neighbors</a></td><td>Run Dijkstra from each city</td></tr>
+<tr><td>882</td><td><a href="https://leetcode.com/problems/reachable-nodes-in-subdivided-graph/" target="_blank">Reachable Nodes in Subdivided Graph</a></td><td>Dijkstra with edge splitting — advanced</td></tr>
+</table></div>
+</div></div>
+
+<script src="tabs.js"></script>
+</body>
+</html>

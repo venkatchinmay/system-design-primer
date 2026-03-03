@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Patterns — Advanced | Zero to Interview-Ready</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <a class="back-link" href="index.html">← Back to All Patterns</a>
+    <h1>🚀 Advanced Patterns</h1>
+    <p class="subtitle">Patterns 31–35 · The final push to interview mastery</p>
+
+    <!-- PATTERN 31: BACKTRACKING -->
+    <div class="pattern" id="backtracking">
+        <div class="pattern-header">
+            <div class="pattern-num">31</div>
+            <div class="pattern-title">Backtracking</div>
+        </div>
+        <div class="section">
+            <div class="section-label analogy">🌍 Real-World Analogy</div>
+            <div class="analogy-box">A maze: try one path, hit a dead end? Go back and try the next path. You explore
+                ALL options by making a choice, going deeper, undoing the choice, and trying the next one. It's brute
+                force made smart with pruning.</div>
+        </div>
+        <div class="section">
+            <div class="section-label recognize">🧠 When To Recognize</div>
+            <div class="keyword-list"><span class="keyword">generate all combinations</span><span
+                    class="keyword">permutations</span><span class="keyword">subsets</span><span
+                    class="keyword">N-Queens</span><span class="keyword">Sudoku solver</span><span class="keyword">word
+                    search</span></div>
+        </div>
+        <div class="section">
+            <div class="section-label code">💻 Code</div>
+            <div class="code-tabs">
+                <button class="code-tab java-tab active" data-lang="java">Java</button>
+                <button class="code-tab go-tab" data-lang="go">Go</button>
+                <button class="code-tab python-tab" data-lang="python">Python</button>
+            </div>
+            <div class="code-panel java active">
+                <pre>
+<span class="comment">// Subsets (LC #78)</span>
+public List&lt;List&lt;Integer&gt;&gt; subsets(int[] nums) {
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    backtrack(nums, 0, new ArrayList&lt;&gt;(), res);
+    return res;
+}
+void backtrack(int[] nums, int start, List&lt;Integer&gt; curr, List&lt;List&lt;Integer&gt;&gt; res) {
+    res.add(new ArrayList&lt;&gt;(curr));
+    for (int i = start; i < nums.length; i++) {
+        curr.add(nums[i]);           <span class="comment">// choose</span>
+        backtrack(nums, i+1, curr, res); <span class="comment">// explore</span>
+        curr.remove(curr.size()-1);  <span class="comment">// un-choose</span>
+    }
+}
+</pre>
+            </div>
+            <div class="code-panel go">
+                <pre>
+func subsets(nums []int) [][]int {
+    res := [][]int{}
+    var bt func(int, []int)
+    bt = func(start int, curr []int) {
+        tmp := make([]int, len(curr)); copy(tmp, curr)
+        res = append(res, tmp)
+        for i := start; i < len(nums); i++ {
+            bt(i+1, append(curr, nums[i]))
+        }
+    }
+    bt(0, []int{})
+    return res
+}
+</pre>
+            </div>
+            <div class="code-panel python">
+                <pre>
+def subsets(nums):
+    res = []
+    def backtrack(start, curr):
+        res.append(curr[:])
+        for i in range(start, len(nums)):
+            curr.append(nums[i])      # choose
+            backtrack(i + 1, curr)     # explore
+            curr.pop()                 # un-choose
+    backtrack(0, [])
+    return res
+</pre>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-label problems">📝 Problem Roadmap</div>
+            <div class="tier tier-beginner">
+                <div class="tier-header"><span class="tier-emoji">🌱</span> Beginner<div class="tier-desc">Generate
+                        subsets and permutations — learn the template</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>78</td>
+                        <td><a href="https://leetcode.com/problems/subsets/" target="_blank">Subsets</a></td>
+                        <td>Core backtracking template — include/skip each element</td>
+                    </tr>
+                    <tr>
+                        <td>46</td>
+                        <td><a href="https://leetcode.com/problems/permutations/" target="_blank">Permutations</a></td>
+                        <td>Swap-based or used[] array approach</td>
+                    </tr>
+                    <tr>
+                        <td>77</td>
+                        <td><a href="https://leetcode.com/problems/combinations/" target="_blank">Combinations</a></td>
+                        <td>Choose k from n — bounded backtracking</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-intermediate">
+                <div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate<div class="tier-desc">Handle
+                        duplicates and constraints</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>90</td>
+                        <td><a href="https://leetcode.com/problems/subsets-ii/" target="_blank">Subsets II (with
+                                duplicates)</a></td>
+                        <td>Sort + skip same element at same level</td>
+                    </tr>
+                    <tr>
+                        <td>47</td>
+                        <td><a href="https://leetcode.com/problems/permutations-ii/" target="_blank">Permutations II
+                                (with duplicates)</a></td>
+                        <td>Avoid duplicate permutations</td>
+                    </tr>
+                    <tr>
+                        <td>39</td>
+                        <td><a href="https://leetcode.com/problems/combination-sum/" target="_blank">Combination Sum</a>
+                        </td>
+                        <td>Reuse same number — start from i, not i+1</td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td><a href="https://leetcode.com/problems/combination-sum-ii/" target="_blank">Combination Sum
+                                II</a></td>
+                        <td>Each number once — sort + skip duplicates</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-confident">
+                <div class="tier-header"><span class="tier-emoji">🌲</span> Confident<div class="tier-desc">Grid and
+                        string backtracking</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>79</td>
+                        <td><a href="https://leetcode.com/problems/word-search/" target="_blank">Word Search</a></td>
+                        <td>Backtracking on 2D grid</td>
+                    </tr>
+                    <tr>
+                        <td>131</td>
+                        <td><a href="https://leetcode.com/problems/palindrome-partitioning/" target="_blank">Palindrome
+                                Partitioning</a></td>
+                        <td>Partition string into palindromes</td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td><a href="https://leetcode.com/problems/letter-combinations-of-a-phone-number/"
+                                target="_blank">Phone Number Letter Combos</a></td>
+                        <td>Multi-way branching backtracking</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-interview">
+                <div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">
+                        Classic hard backtracking — FAANG favorites</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>51</td>
+                        <td><a href="https://leetcode.com/problems/n-queens/" target="_blank">N-Queens</a></td>
+                        <td>Place queens with column/diagonal constraints</td>
+                    </tr>
+                    <tr>
+                        <td>37</td>
+                        <td><a href="https://leetcode.com/problems/sudoku-solver/" target="_blank">Sudoku Solver</a>
+                        </td>
+                        <td>Fill cells with validity checking</td>
+                    </tr>
+                    <tr>
+                        <td>212</td>
+                        <td><a href="https://leetcode.com/problems/word-search-ii/" target="_blank">Word Search II</a>
+                        </td>
+                        <td>Backtracking + Trie — combines patterns</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATTERN 32: TRIE -->
+    <div class="pattern" id="trie">
+        <div class="pattern-header">
+            <div class="pattern-num">32</div>
+            <div class="pattern-title">Trie (Prefix Tree)</div>
+        </div>
+        <div class="section">
+            <div class="section-label analogy">🌍 Real-World Analogy</div>
+            <div class="analogy-box">Phone autocomplete — as you type "app", the system narrows down to "apple",
+                "application", "apply". A trie stores words as a tree of characters, with shared prefixes stored once.
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-label code">💻 Code</div>
+            <div class="code-tabs">
+                <button class="code-tab java-tab active" data-lang="java">Java</button>
+                <button class="code-tab go-tab" data-lang="go">Go</button>
+                <button class="code-tab python-tab" data-lang="python">Python</button>
+            </div>
+            <div class="code-panel java active">
+                <pre>
+<span class="comment">// Trie (LC #208)</span>
+class Trie {
+    Trie[] children = new Trie[26];
+    boolean isEnd = false;
+    void insert(String w) {
+        Trie node = this;
+        for (char c : w.toCharArray()) {
+            if (node.children[c-'a'] == null) node.children[c-'a'] = new Trie();
+            node = node.children[c-'a'];
+        }
+        node.isEnd = true;
+    }
+    boolean search(String w) {
+        Trie node = find(w); return node != null && node.isEnd;
+    }
+    boolean startsWith(String p) { return find(p) != null; }
+    Trie find(String s) {
+        Trie node = this;
+        for (char c : s.toCharArray()) {
+            if (node.children[c-'a'] == null) return null;
+            node = node.children[c-'a'];
+        }
+        return node;
+    }
+}
+</pre>
+            </div>
+            <div class="code-panel go">
+                <pre>
+type Trie struct{ children [26]*Trie; isEnd bool }
+func (t *Trie) Insert(w string) {
+    node := t
+    for _, c := range w {
+        i := c-'a'; if node.children[i]==nil{node.children[i]=&Trie{}}
+        node = node.children[i]
+    }
+    node.isEnd = true
+}
+func (t *Trie) Search(w string) bool { n:=t.find(w); return n!=nil&&n.isEnd }
+func (t *Trie) StartsWith(p string) bool { return t.find(p)!=nil }
+func (t *Trie) find(s string) *Trie {
+    node := t
+    for _, c := range s { i:=c-'a'; if node.children[i]==nil{return nil}; node=node.children[i] }
+    return node
+}
+</pre>
+            </div>
+            <div class="code-panel python">
+                <pre>
+class TrieNode:
+    def __init__(self):
+        self.children = {}; self.is_end = False
+
+class Trie:
+    def __init__(self): self.root = TrieNode()
+    def insert(self, word):
+        node = self.root
+        for c in word:
+            if c not in node.children: node.children[c] = TrieNode()
+            node = node.children[c]
+        node.is_end = True
+    def search(self, word):
+        node = self._find(word); return node is not None and node.is_end
+    def starts_with(self, prefix): return self._find(prefix) is not None
+    def _find(self, s):
+        node = self.root
+        for c in s:
+            if c not in node.children: return None
+            node = node.children[c]
+        return node
+</pre>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-label problems">📝 Problem Roadmap</div>
+            <div class="tier tier-beginner">
+                <div class="tier-header"><span class="tier-emoji">🌱</span> Beginner<div class="tier-desc">Build a Trie,
+                        search, prefix-check</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>208</td>
+                        <td><a href="https://leetcode.com/problems/implement-trie-prefix-tree/"
+                                target="_blank">Implement Trie</a></td>
+                        <td>Build the data structure from scratch</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-interview">
+                <div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Trie +
+                        DFS/backtracking combo</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>211</td>
+                        <td><a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/"
+                                target="_blank">Add and Search Word</a></td>
+                        <td>Trie + DFS for wildcard '.'</td>
+                    </tr>
+                    <tr>
+                        <td>212</td>
+                        <td><a href="https://leetcode.com/problems/word-search-ii/" target="_blank">Word Search II</a>
+                        </td>
+                        <td>Trie-guided backtracking on grid</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATTERN 33: GREEDY -->
+    <div class="pattern" id="greedy">
+        <div class="pattern-header">
+            <div class="pattern-num">33</div>
+            <div class="pattern-title">Greedy</div>
+        </div>
+        <div class="section">
+            <div class="section-label analogy">🌍 Real-World Analogy</div>
+            <div class="analogy-box">Making change with the fewest coins — always pick the LARGEST coin that fits.
+                Greedy works when the locally optimal choice leads to the globally optimal solution. The trick is
+                proving it's correct!</div>
+        </div>
+        <div class="section">
+            <div class="section-label problems">📝 Problem Roadmap</div>
+            <div class="tier tier-beginner">
+                <div class="tier-header"><span class="tier-emoji">🌱</span> Beginner<div class="tier-desc">Obvious
+                        greedy decisions</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>455</td>
+                        <td><a href="https://leetcode.com/problems/assign-cookies/" target="_blank">Assign Cookies</a>
+                        </td>
+                        <td>Sort + greedily match smallest cookie to smallest child</td>
+                    </tr>
+                    <tr>
+                        <td>605</td>
+                        <td><a href="https://leetcode.com/problems/can-place-flowers/" target="_blank">Can Place
+                                Flowers</a></td>
+                        <td>Place greedily at each valid spot</td>
+                    </tr>
+                    <tr>
+                        <td>121</td>
+                        <td><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"
+                                target="_blank">Best Time to Buy/Sell Stock</a></td>
+                        <td>Track min price — greedy approach</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-intermediate">
+                <div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate<div class="tier-desc">Greedy on
+                        sequences</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>55</td>
+                        <td><a href="https://leetcode.com/problems/jump-game/" target="_blank">Jump Game</a></td>
+                        <td>Track farthest reachable position</td>
+                    </tr>
+                    <tr>
+                        <td>45</td>
+                        <td><a href="https://leetcode.com/problems/jump-game-ii/" target="_blank">Jump Game II</a></td>
+                        <td>Min jumps — greedy level-by-level</td>
+                    </tr>
+                    <tr>
+                        <td>134</td>
+                        <td><a href="https://leetcode.com/problems/gas-station/" target="_blank">Gas Station</a></td>
+                        <td>Circular greedy — track surplus</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-interview">
+                <div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">Prove
+                        greedy works (exchange argument)</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>763</td>
+                        <td><a href="https://leetcode.com/problems/partition-labels/" target="_blank">Partition
+                                Labels</a></td>
+                        <td>Track last occurrence — greedy partitioning</td>
+                    </tr>
+                    <tr>
+                        <td>678</td>
+                        <td><a href="https://leetcode.com/problems/valid-parenthesis-string/" target="_blank">Valid
+                                Parenthesis String</a></td>
+                        <td>Track min/max open count range</td>
+                    </tr>
+                    <tr>
+                        <td>135</td>
+                        <td><a href="https://leetcode.com/problems/candy/" target="_blank">Candy</a></td>
+                        <td>Two-pass greedy — left-to-right then right-to-left</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATTERN 34: HEAP / TOP-K -->
+    <div class="pattern" id="heap-topk">
+        <div class="pattern-header">
+            <div class="pattern-num">34</div>
+            <div class="pattern-title">Heap / Top-K</div>
+        </div>
+        <div class="section">
+            <div class="section-label analogy">🌍 Real-World Analogy</div>
+            <div class="analogy-box">A VIP list — you only keep the top K most important people. When a new person
+                arrives, if they outrank the least important VIP, they swap in. A min-heap of size K does this
+                efficiently.</div>
+        </div>
+        <div class="section">
+            <div class="section-label code">💻 Code</div>
+            <div class="code-tabs">
+                <button class="code-tab java-tab active" data-lang="java">Java</button>
+                <button class="code-tab go-tab" data-lang="go">Go</button>
+                <button class="code-tab python-tab" data-lang="python">Python</button>
+            </div>
+            <div class="code-panel java active">
+                <pre>
+<span class="comment">// Top K Frequent Elements (LC #347)</span>
+public int[] topKFrequent(int[] nums, int k) {
+    Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
+    for (int n : nums) freq.merge(n, 1, Integer::sum);
+    PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;((a,b) -> freq.get(a)-freq.get(b));
+    for (int key : freq.keySet()) {
+        pq.offer(key);
+        if (pq.size() > k) pq.poll();
+    }
+    return pq.stream().mapToInt(i->i).toArray();
+}
+</pre>
+            </div>
+            <div class="code-panel go">
+                <pre>
+<span class="comment">// Use container/heap or sort approach</span>
+func topKFrequent(nums []int, k int) []int {
+    freq := map[int]int{}
+    for _, n := range nums { freq[n]++ }
+    keys := make([]int, 0, len(freq))
+    for key := range freq { keys = append(keys, key) }
+    sort.Slice(keys, func(i, j int) bool { return freq[keys[i]]>freq[keys[j]] })
+    return keys[:k]
+}
+</pre>
+            </div>
+            <div class="code-panel python">
+                <pre>
+import heapq
+from collections import Counter
+def top_k_frequent(nums, k):
+    freq = Counter(nums)
+    return [x for x, _ in heapq.nlargest(k, freq.items(), key=lambda x: x[1])]
+</pre>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-label problems">📝 Problem Roadmap</div>
+            <div class="tier tier-beginner">
+                <div class="tier-header"><span class="tier-emoji">🌱</span> Beginner<div class="tier-desc">Learn
+                        min-heap of size K</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>215</td>
+                        <td><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank">Kth
+                                Largest Element</a></td>
+                        <td>Min-heap of size K</td>
+                    </tr>
+                    <tr>
+                        <td>703</td>
+                        <td><a href="https://leetcode.com/problems/kth-largest-element-in-a-stream/" target="_blank">Kth
+                                Largest in Stream</a></td>
+                        <td>Maintain heap as new elements arrive</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-intermediate">
+                <div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate<div class="tier-desc">Frequency
+                        + heap</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>347</td>
+                        <td><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank">Top K
+                                Frequent Elements</a></td>
+                        <td>HashMap freq → heap top K</td>
+                    </tr>
+                    <tr>
+                        <td>692</td>
+                        <td><a href="https://leetcode.com/problems/top-k-frequent-words/" target="_blank">Top K Frequent
+                                Words</a></td>
+                        <td>Custom comparator with string ordering</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-interview">
+                <div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">K-way
+                        merge and scheduling</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank">Merge K Sorted
+                                Lists</a></td>
+                        <td>Min-heap for K-way merge</td>
+                    </tr>
+                    <tr>
+                        <td>621</td>
+                        <td><a href="https://leetcode.com/problems/task-scheduler/" target="_blank">Task Scheduler</a>
+                        </td>
+                        <td>Max-heap + cooldown — greedy scheduling</td>
+                    </tr>
+                    <tr>
+                        <td>373</td>
+                        <td><a href="https://leetcode.com/problems/find-k-pairs-with-smallest-sums/" target="_blank">K
+                                Pairs with Smallest Sums</a></td>
+                        <td>Heap-based exploration of sorted pairs</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATTERN 35: TWO HEAPS -->
+    <div class="pattern" id="two-heaps">
+        <div class="pattern-header">
+            <div class="pattern-num">35</div>
+            <div class="pattern-title">Two Heaps (Median Finding)</div>
+        </div>
+        <div class="section">
+            <div class="section-label analogy">🌍 Real-World Analogy</div>
+            <div class="analogy-box">Imagine splitting a class by height into a "shorter half" and a "taller half". The
+                median is between the tallest of the short group and the shortest of the tall group. A max-heap tracks
+                the shorter half, a min-heap tracks the taller half.</div>
+        </div>
+        <div class="section">
+            <div class="section-label code">💻 Code</div>
+            <div class="code-tabs">
+                <button class="code-tab java-tab active" data-lang="java">Java</button>
+                <button class="code-tab go-tab" data-lang="go">Go</button>
+                <button class="code-tab python-tab" data-lang="python">Python</button>
+            </div>
+            <div class="code-panel java active">
+                <pre>
+<span class="comment">// Find Median from Data Stream (LC #295)</span>
+PriorityQueue&lt;Integer&gt; lo = new PriorityQueue&lt;&gt;(Collections.reverseOrder()); <span class="comment">// max-heap (smaller half)</span>
+PriorityQueue&lt;Integer&gt; hi = new PriorityQueue&lt;&gt;(); <span class="comment">// min-heap (larger half)</span>
+public void addNum(int num) {
+    lo.offer(num); hi.offer(lo.poll());
+    if (lo.size() < hi.size()) lo.offer(hi.poll());
+}
+public double findMedian() {
+    return lo.size() > hi.size() ? lo.peek() : (lo.peek() + hi.peek()) / 2.0;
+}
+</pre>
+            </div>
+            <div class="code-panel go">
+                <pre>
+<span class="comment">// Requires custom heap implementation in Go</span>
+<span class="comment">// lo = max-heap (smaller half), hi = min-heap (larger half)</span>
+<span class="comment">// addNum: push to lo, move top to hi, rebalance</span>
+</pre>
+            </div>
+            <div class="code-panel python">
+                <pre>
+import heapq
+class MedianFinder:
+    def __init__(self):
+        self.lo = []   <span class="comment"># max-heap (negate values)</span>
+        self.hi = []   <span class="comment"># min-heap</span>
+    def addNum(self, num):
+        heapq.heappush(self.lo, -num)
+        heapq.heappush(self.hi, -heapq.heappop(self.lo))
+        if len(self.lo) < len(self.hi):
+            heapq.heappush(self.lo, -heapq.heappop(self.hi))
+    def findMedian(self):
+        if len(self.lo) > len(self.hi): return -self.lo[0]
+        return (-self.lo[0] + self.hi[0]) / 2
+</pre>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-label problems">📝 Problem Roadmap</div>
+            <div class="tier tier-intermediate">
+                <div class="tier-header"><span class="tier-emoji">🌿</span> Intermediate<div class="tier-desc">Maintain
+                        two heaps for running median</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>295</td>
+                        <td><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank">Find
+                                Median from Data Stream</a></td>
+                        <td>THE two heaps problem</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tier tier-interview">
+                <div class="tier-header"><span class="tier-emoji">🏆</span> Interview-Ready<div class="tier-desc">
+                        Sliding window median</div>
+                </div>
+                <table class="problem-table">
+                    <tr>
+                        <th>LC #</th>
+                        <th>Problem</th>
+                        <th>What You'll Learn</th>
+                    </tr>
+                    <tr>
+                        <td>480</td>
+                        <td><a href="https://leetcode.com/problems/sliding-window-median/" target="_blank">Sliding
+                                Window Median</a></td>
+                        <td>Two heaps + lazy deletion — very hard</td>
+                    </tr>
+                    <tr>
+                        <td>502</td>
+                        <td><a href="https://leetcode.com/problems/ipo/" target="_blank">IPO</a></td>
+                        <td>Two heaps: capital threshold + max profit</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="tabs.js"></script>
+</body>
+
+</html>
